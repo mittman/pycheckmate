@@ -22,7 +22,7 @@ def game_type():
 	else:
 		print("> NOTE: GAME ENDS IN " + end + " MOVES")
 
-def add_piece():
+def add_piece(board):
 	print("> ADD PIECE TO BOARD?")
 	print("1) PlayerX King")
 	print("2) PlayerX Rook")
@@ -31,15 +31,15 @@ def add_piece():
 
 	option = input("Select [1-4]: ")
 	if re.match(r"[1-3]", option):
-		move_piece(option)
+		move_piece(option, board)
 		add_piece()
 
-def move_piece(option):
-	if option == 1:
+def move_piece(option, board):
+	if option == str(1):
 		piece = Piece('K', 'x')
-	elif option == 2:
+	elif option == str(2):
 		piece = Piece('R', 'x')
-	elif option == 3:
+	elif option == str(3):
 		piece = Piece('K', 'y')
 
 	print("> STARTING POSITION FOR " + option + " ?")
@@ -53,14 +53,10 @@ def move_piece(option):
 		print("ERROR: expected [1-8]")
 		exit(2)
 	
-	board = Board()
-	board.add_piece(piece, moveH, moveV)
+	board.add_piece(piece, int(moveH), int(moveV))
 	
 	print("> OK " + option + " to " + moveH + "-" + moveV)
 
-	board.display()
 
 # Call functions
-tile = [['*' for x in range(16)] for x in range(16)]
-game_type()
-add_piece()
+
