@@ -32,7 +32,7 @@ def add_piece(board):
 	option = input("Select [1-4]: ")
 	if re.match(r"[1-3]", option):
 		move_piece(option, board)
-		add_piece()
+		add_piece(board)
 
 def move_piece(option, board):
 	if option == str(1):
