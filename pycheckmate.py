@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import os, sys, re
+from Board import Board
+from Piece import Piece
 
 def game_type():
 	print("> WOULD YOU LIKE TO PLAY A GAME?")
@@ -34,14 +36,11 @@ def add_piece():
 
 def move_piece(option):
 	if option == 1:
-		piece = "king"
-		color = "x"
+		piece = Piece('K', 'x')
 	elif option == 2:
-		piece = "rook"
-		color = "x"
+		piece = Piece('R', 'x')
 	elif option == 3:
-		piece = "king"
-		color = "y"
+		piece = Piece('K', 'y')
 
 	print("> STARTING POSITION FOR " + option + " ?")
 	moveH = input("Horizontal [1-8]: ")
@@ -53,10 +52,13 @@ def move_piece(option):
 	if not re.match(r"[1-8]", moveV):
 		print("ERROR: expected [1-8]")
 		exit(2)
-
-	tile[int(moveH)][int(moveV)] = option
+	
+	board = Board()
+	board.add_piece(piece, moveH, moveV)
+	
 	print("> OK " + option + " to " + moveH + "-" + moveV)
 
+	board.display()
 
 # Call functions
 tile = [['*' for x in range(16)] for x in range(16)]
