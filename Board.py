@@ -20,9 +20,6 @@ class Board:
             self.state[p.row][p.col] = p.player + p.type
         print('\n'.join(''.join(['{:3}'.format(item) for item in row]) for row in self.state))
 
-    def add_piece(self, p):
-        self.state[p.row][p.col] = p.player + p.type
-
     def move(self, player_id, piece_id, new_row, new_col):
         # Will need to separate AI player moves from human player moves here.
         # Player should be able to move rook in to a dangerous spot. AI should not.
@@ -59,13 +56,13 @@ class Board:
             return False
 
         if piece.type == 'R':
-            if new_row == piece.row or new_col == piece.col:  # horizontal/vertical move
-                if self.state[new_row][new_col] == '*':       # space unoccupied
+            if (new_row == piece.row or new_col == piece.col and    # horizontal/vertical move
+                self.state[new_row][new_col] == '*' and             # space unoccupied
+                self.is_clear_path(piece.row, piece.col, new_row, new_col)):
                     return True
 
         elif piece.type == 'K':
             if self.is_adjacent_spot(piece.row, piece.col, new_row, new_col):
-                ### Need a tedious out of bounds check here ###
                 return True
 
         else:
@@ -81,3 +78,32 @@ class Board:
             return True
         else:
             return False
+
+    def is_clear_path(self, from_row, from_col, to_row, to_col):
+        # Check rook's path to make sure there are no obstacles in its way
+
+        if to_row > from_row:       # moving horizontally to the right
+            i = from_row + 1
+            while i < to_row:
+                if self.state[i][from_col] != '*':
+                    return False
+                i += 1
+        elif to_row < from_row:     # moving horizontally to the left
+            i = from_row - 1
+            while i > to_row:
+                if self.state[i][from_col] != '*':
+                    return False
+                i -= 1
+        elif to_col > from_col:     # moving vertically up
+            i = from_col + 1
+            while i < to_col:
+                if self.state[from_row][i] != '*':
+                    return False
+                i += 1
+        else:                       # to_col < from_col; moving down
+            i = from_col - 1
+            while i > to_col:
+                if self.state[from_row][i] != '*':
+                    return False
+                i -= 1
+        return True
