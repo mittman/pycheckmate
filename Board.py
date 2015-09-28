@@ -1,6 +1,9 @@
+import random
+
 class Board:
     def __init__(self, player_one, player_two):
-        self.state = [['\n'],
+        self.turn = 1
+        self.state = [['         Turn: ', ''],
                       ['1', '*', '*', '*', '*', '*', '*', '*', '*'],
                       ['2', '*', '*', '*', '*', '*', '*', '*', '*'],
                       ['3', '*', '*', '*', '*', '*', '*', '*', '*'],
@@ -18,6 +21,7 @@ class Board:
             self.state[p.row][p.col] = p.player + p.type
         for p in self.player_y.pieces.values():
             self.state[p.row][p.col] = p.player + p.type
+        self.state[0][1] = str(self.turn)
         print('\n'.join(''.join(['{:3}'.format(item) for item in row]) for row in self.state))
 
     def move(self, player_id, piece_id, new_row, new_col):
@@ -32,14 +36,15 @@ class Board:
             opponent = self.player_x
         piece = hero.pieces[piece_id]
 
-        if self.legal_move(piece, new_row, new_col) and \
-                self.tile_is_safe(opponent, new_row, new_col):
-                    # Here is where the distinction between AI and human needs to happen
-                    self.state[piece.row][piece.col] = '*'
-                    hero.pieces[piece_id].row = new_row
-                    hero.pieces[piece_id].col = new_col
+        if (self.legal_move(piece, new_row, new_col) and
+            self.tile_is_safe(opponent, new_row, new_col)):
+                # Here is where the distinction between AI and human needs to happen
+                self.state[piece.row][piece.col] = '*'
+                hero.pieces[piece_id].row = new_row
+                hero.pieces[piece_id].col = new_col
+                self.turn += 1
         else:
-            print('\n\nIllegal move.', end='')
+            print('\n\nIllegal move.')
 
     def tile_is_safe(self, enemy, tile_row, tile_col):
         for p in enemy.pieces.values():
@@ -71,17 +76,17 @@ class Board:
     def is_adjacent_spot(self, row, col, new_row, new_col):
         # Return True if new coordinates are adjacent (horizontally,
         # vertically, or diagonally) to the old coordinates.
-        if (new_row == (row + 1) or new_row == (row - 1) or
-            new_col == (col - 1) or new_col == (col - 1)) and \
-           (new_row < (row + 2) and new_col < (col + 2) and
-            row < (new_col + 2) and col < (new_col + 2)):
+        adj_tiles = []
+        for r in range(row - 1, row + 2):
+            for c in range(col - 1, col + 2):
+                adj_tiles.append((r, c))
+        if (new_row, new_col) in adj_tiles:
             return True
         else:
             return False
 
     def is_clear_path(self, from_row, from_col, to_row, to_col):
         # Check rook's path to make sure there are no obstacles in its way
-
         if to_row > from_row:       # moving horizontally to the right
             i = from_row + 1
             while i < to_row:
@@ -107,3 +112,40 @@ class Board:
                     return False
                 i -= 1
         return True
+
+
+    def ai_move(self, player):
+        if player.id == 'x':
+            key = random.randint(0, 1)
+            if key == 0:
+                piece = player.pieces['K']
+            else:
+                piece = player.pieces['R']
+        else:
+            piece = player.pieces['K']
+
+        legal_moves = self.find_legal_moves(piece)
+        if len(legal_moves) == 1:
+            new_destination = legal_moves[0]
+        else:
+            new_destination = legal_moves[random.randint(0, len(legal_moves) - 1)]
+        row = new_destination[0]
+        col = new_destination[1]
+
+        self.move(player.id, piece.type, row, col)
+
+    def find_legal_moves(self, piece):
+        legal_tiles = []
+        if piece.type == 'R':
+            for r in range(1, 9):
+                if self.legal_move(piece, r, piece.col):
+                    legal_tiles.append((r, piece.col))
+            for c in range(1, 9):
+                if self.legal_move(piece, piece.row, c):
+                    legal_tiles.append((piece.row, c))
+        else:       # piece = king
+            for r in range(piece.row - 1, piece.row + 2):
+                for c in range(piece.col - 1, piece.col + 2):
+                    if self.legal_move(piece, r, c):
+                        legal_tiles.append((r, c))
+        return legal_tiles
