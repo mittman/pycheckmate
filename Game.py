@@ -28,6 +28,7 @@ class Game:
 
 		return mode, end
 
+
 	def ask_piece(self, board, player_x, player_y, remain):
 		print("> ADD PIECE TO BOARD?")
 
@@ -46,19 +47,18 @@ class Game:
 		if option == n + 1:
 			pass
 		elif option <= n and option > 0 and n > 1:
-			print("debug 1")
 			piece_name = remain[option-1]
 			self.insert_piece(board, piece_name, player_x, player_y)
 			remain.pop(option-1)
 			self.ask_piece(board, player_x, player_y, remain)
 		elif option <= n and option > 0:
-			print("debug 2")
 			piece_name = remain[option-1]
 			self.insert_piece(board, piece_name, player_x, player_y)
 			remain.pop(option-1)
 		else:
 			print("Try again")
 			self.ask_piece(board, player_x, player_y, remain)
+
 
 	def insert_piece(self, board, piece_name, player_x, player_y):
 		print("> STARTING POSITION FOR " + piece_name + " ?")
@@ -95,5 +95,29 @@ class Game:
 			exit(3)
 
 		print("> OK " + piece_name + " to " + str(moveH) + "-" + str(moveV))
-
 		board.display()
+
+
+	def split_entry(self, entry):
+		coordinates = entry.split(',')
+		moveH = coordinates[0]
+		moveH = moveH[-1]
+		moveH = int(moveH)
+		moveV = coordinates[1]
+		moveV = moveV[0]
+		moveV = int(moveV)
+		return moveH, moveV
+
+	def add_or_move(self, board, player, piece_id, player_id, moveH, moveV, num):
+		if num == 1:
+			new_piece = Piece(piece_id, player_id, moveH, moveV)
+			if player_id == 'x':
+				player.add_piece(new_piece)
+			elif player_id == 'y':
+				player.add_piece(new_piece)
+			else:
+				print("ERROR: invalid player")
+		else:
+			if board.state[moveH][moveV] != player_id + piece_id:
+				print("\n\nMove " + player_id + piece_id + " to " + str(moveH) + "," + str(moveV))
+				board.move(player_id, piece_id, moveH, moveV)

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-import os, sys
+import os, sys, re
 from Board import Board
 from Game import Game
 from Piece import Piece
 from Player import Player
 
 
-def test_file():
+def test_file(board, game, player_x, player_y):
 	# parse optional parameter
 	if len(sys.argv) == 2:
 		if os.path.isfile(sys.argv[1]):
@@ -25,12 +25,30 @@ def test_file():
 	# open file
 	try:
 		with open(filename, 'r', 1) as f:
-			line = f.readlines(1)
-			#line = line.rstrip('\n')
-			print(line)
+			num = 1
+			for line in f:
+				line = line.rstrip()
+				line = line.split(', ')
+
+				for i in range(len(line)):
+					if re.match(r"x\.K\([1-8],[1-8]\)", line[i]):
+						moveH, moveV = game.split_entry(line[i])
+						game.add_or_move(board, player_x, 'K', 'x', moveH, moveV, num)
+					elif re.match(r"x\.R\([1-8],[1-8]\)", line[i]):
+						moveH, moveV = game.split_entry(line[i])
+						game.add_or_move(board, player_x, 'R', 'x', moveH, moveV, num)
+					elif re.match(r"y\.K\([1-8],[1-8]\)", line[i]):
+						moveH, moveV = game.split_entry(line[i])
+						game.add_or_move(board, player_y, 'K', 'y', moveH, moveV, num)
+					else:
+						print("ERROR: invalid entry from file")
+
+				board.display()
+				num += 1
+
 	except ValueError: "cannot read file"
 	f.close()
-## not finished
+
 
 def interactive():
 	g = Game()
@@ -40,11 +58,14 @@ def interactive():
 		player_x = Player('x')
 		player_y = Player('y')
 		b = Board(player_x, player_y)
-
 		remain = [ 'PlayerX King', 'PlayerX Rook', 'PlayerY King' ]
 		g.ask_piece(b, player_x, player_y, remain)
 	else:
-		test_case()
+		player_x = Player('x')
+		player_y = Player('y')
+		b = Board(player_x, player_y)
+		test_file(b, g, player_x, player_y)
+
 
 def test_case():
 	rook_x = Piece('R', 'x', 5, 7)
@@ -72,7 +93,6 @@ def test_case():
 	# illegal moves test:
 	b.move('y', 'K', 3, 4)
 	b.display()
-
 
 
 if __name__ == '__main__':
