@@ -2,25 +2,14 @@
 
 import os, sys, re
 from Board import Board
+from File import File
 from Game import Game
 from Piece import Piece
 from Player import Player
 
 
 def test_file(board, game, player_x, player_y):
-	# parse optional parameter
-	if len(sys.argv) == 2:
-		if os.path.isfile(sys.argv[1]):
-			filename = sys.argv[1]
-		else:
-			print("USAGE: " + sys.argv[0] + " [file]")
-			exit(1)
-	# default filename
-	elif os.path.isfile("testCase.txt"):
-		filename = "testCase.txt"
-	else:
-		print("unable to find 'testCase.txt'")
-		exit(1)
+	filename = File.open_file()
 
 	# open file
 	try:
@@ -31,17 +20,7 @@ def test_file(board, game, player_x, player_y):
 				line = line.split(', ')
 
 				for i in range(len(line)):
-					if re.match(r"x\.K\([1-8],[1-8]\)", line[i]):
-						moveH, moveV = game.split_entry(line[i])
-						game.add_or_move(board, player_x, 'K', 'x', moveH, moveV, num)
-					elif re.match(r"x\.R\([1-8],[1-8]\)", line[i]):
-						moveH, moveV = game.split_entry(line[i])
-						game.add_or_move(board, player_x, 'R', 'x', moveH, moveV, num)
-					elif re.match(r"y\.K\([1-8],[1-8]\)", line[i]):
-						moveH, moveV = game.split_entry(line[i])
-						game.add_or_move(board, player_y, 'K', 'y', moveH, moveV, num)
-					else:
-						print("ERROR: invalid entry from file")
+					game.parse_entry(line[i], game, board, player_x, player_y, num)
 
 				board.display()
 				num += 1
@@ -53,6 +32,7 @@ def test_file(board, game, player_x, player_y):
 def interactive():
 	g = Game()
 	mode, end = g.game_type()
+	end = int(end)
 
 	if mode:
 		player_x = Player('x')
@@ -60,21 +40,31 @@ def interactive():
 		b = Board(player_x, player_y)
 		remain = [ 'PlayerX King', 'PlayerX Rook', 'PlayerY King' ]
 		g.ask_piece(b, player_x, player_y, remain)
+
+	    # AI random moves test:
+		for i in range(0, end):
+		    b.ai_move(player_x)
+		    b.display()
+		    b.ai_move(player_y)
+		    b.display()
 	else:
 		player_x = Player('x')
 		player_y = Player('y')
 		b = Board(player_x, player_y)
 		test_file(b, g, player_x, player_y)
 
+	    # AI random moves test:
+		for i in range(0, end):
+		    b.ai_move(player_x)
+		    b.display()
+		    b.ai_move(player_y)
+		    b.display()
+
 
 def test_case():
-    rook_x = Piece('R', 'x', 5, 7)
     king_x = Piece('K', 'x', 3, 5)
+    rook_x = Piece('R', 'x', 5, 7)
     king_y = Piece('K', 'y', 4, 3)
-
-    # king_x = Piece('K', 'x', 3, 3)
-    # rook_x = Piece('R', 'x', 5, 6)
-    # king_y = Piece('K', 'y', 1, 1)
 
     player_x = Player('x')
     player_y = Player('y')
@@ -109,4 +99,5 @@ def test_case():
 
 
 if __name__ == '__main__':
+	#test_case()
 	interactive()

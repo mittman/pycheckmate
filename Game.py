@@ -36,17 +36,14 @@ class Game:
 		for p in remain:
 			i += 1
 			print(str(i) + ") " + p)
-		print(str(i+1) + ") quit")
 
 		n = len(remain)
-		option = input("Select [1-" + str(n+1) + "]: ")
+		option = input("Select [1-" + str(n) + "]: ")
 		try:
 			option = int(option)
 		except ValueError: self.ask_piece(board, player_x, player_y, remain)
 
-		if option == n + 1:
-			pass
-		elif option <= n and option > 0 and n > 1:
+		if option <= n and option > 0 and n > 1:
 			piece_name = remain[option-1]
 			self.insert_piece(board, piece_name, player_x, player_y)
 			remain.pop(option-1)
@@ -107,6 +104,19 @@ class Game:
 		moveV = moveV[0]
 		moveV = int(moveV)
 		return moveH, moveV
+
+	def parse_entry(self, entry, game, board, player_x, player_y, num):
+		if re.match(r"x\.K\([1-8],[1-8]\)", entry):
+			moveH, moveV = game.split_entry(entry)
+			game.add_or_move(board, player_x, 'K', 'x', moveH, moveV, num)
+		elif re.match(r"x\.R\([1-8],[1-8]\)", entry):
+			moveH, moveV = game.split_entry(entry)
+			game.add_or_move(board, player_x, 'R', 'x', moveH, moveV, num)
+		elif re.match(r"y\.K\([1-8],[1-8]\)", entry):
+			moveH, moveV = game.split_entry(entry)
+			game.add_or_move(board, player_y, 'K', 'y', moveH, moveV, num)
+		else:
+			print("ERROR: invalid entry from file")
 
 	def add_or_move(self, board, player, piece_id, player_id, moveH, moveV, num):
 		if num == 1:
