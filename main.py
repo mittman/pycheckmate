@@ -68,31 +68,44 @@ def interactive():
 
 
 def test_case():
-	rook_x = Piece('R', 'x', 5, 7)
-	king_x = Piece('K', 'x', 3, 5)
-	king_y = Piece('K', 'y', 4, 3)
+    rook_x = Piece('R', 'x', 5, 7)
+    king_x = Piece('K', 'x', 3, 5)
+    king_y = Piece('K', 'y', 4, 3)
 
-	player_x = Player('x')
-	player_y = Player('y')
+    # king_x = Piece('K', 'x', 3, 3)
+    # rook_x = Piece('R', 'x', 5, 6)
+    # king_y = Piece('K', 'y', 1, 1)
 
-	player_x.add_piece(rook_x)
-	player_x.add_piece(king_x)
-	player_y.add_piece(king_y)
+    player_x = Player('x')
+    player_y = Player('y')
 
-	b = Board(player_x, player_y)
-	b.display()
+    player_x.add_piece(rook_x)
+    player_x.add_piece(king_x)
+    player_y.add_piece(king_y)
 
-	# legal moves test:
-	b.move('x', 'R', 5, 5)
-	b.display()
-	b.move('x', 'K', 4, 5)
-	b.display()
-	b.move('y', 'K', 3, 3)
-	b.display()
+    b = Board(player_x, player_y)
+    b.display()
 
-	# illegal moves test:
-	b.move('y', 'K', 3, 4)
-	b.display()
+    # legal moves test:
+    b.move('x', 'R', 5, 5)
+    b.display()
+    b.move('x', 'K', 4, 5)
+    b.display()
+    b.move('y', 'K', 3, 3)
+    b.display()
+
+    # illegal moves test:
+    b.move('y', 'K', 3, 4)
+    b.display()
+    b.move('x', 'R', 2, 5)
+    b.display()
+
+    # AI random moves test:
+    for i in range(0, 101):
+        b.ai_move(player_x)
+        b.display()
+        b.ai_move(player_y)
+        b.display()
 
 
 if __name__ == '__main__':
