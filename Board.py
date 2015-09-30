@@ -25,9 +25,6 @@ class Board:
         print('\n'.join(''.join(['{:3}'.format(item) for item in row]) for row in self.state))
 
     def move(self, player_id, piece_id, new_row, new_col):
-        # Will need to separate AI player moves from human player moves here.
-        # Player should be able to move rook in to a dangerous spot. AI should not.
-        # Currently this function doesn't allow dangerous moves for anyone.
         if player_id == 'x':
             hero = self.player_x
             opponent = self.player_y
@@ -35,16 +32,16 @@ class Board:
             hero = self.player_y
             opponent = self.player_x
         piece = hero.pieces[piece_id]
-
-        if (self.legal_move(piece, new_row, new_col) and
-            self.tile_is_safe(opponent, new_row, new_col)):
-                # Here is where the distinction between AI and human needs to happen
-                self.state[piece.row][piece.col] = '*'
-                hero.pieces[piece_id].row = new_row
-                hero.pieces[piece_id].col = new_col
-                self.turn += 1
+        
+        if piece_id == 'K' and not self.tile_is_safe(opponent, new_row, new_col):
+            print('\nIllegal move.')
+        elif not self.legal_move(piece, new_row, new_col):
+            print('\nIllegal move.')
         else:
-            print('\n\nIllegal move.')
+            self.state[piece.row][piece.col] = '*'
+            hero.pieces[piece_id].row = new_row
+            hero.pieces[piece_id].col = new_col
+            self.turn += 1
 
     def tile_is_safe(self, enemy, tile_row, tile_col):
         for p in enemy.pieces.values():
@@ -80,11 +77,9 @@ class Board:
         adj_tiles = []
         for r in range(row - 1, row + 2):
             for c in range(col - 1, col + 2):
-                adj_tiles.append((r, c))
-        if (new_row, new_col) in adj_tiles:
-            return True
-        else:
-            return False
+                if (new_row, new_col) == (r, c):
+                    return True
+        return False
 
     def is_clear_path(self, from_row, from_col, to_row, to_col):
         # Check rook's path to make sure there are no obstacles in its way
