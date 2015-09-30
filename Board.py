@@ -67,7 +67,8 @@ class Board:
                     return True
 
         elif piece.type == 'K':
-            if self.is_adjacent_spot(piece.row, piece.col, new_row, new_col):
+            if (self.is_adjacent_spot(piece.row, piece.col, new_row, new_col) and
+                self.state[new_row][new_col][0] != piece.player):   # tile unoccupied by ally
                 return True
 
         else:
@@ -124,28 +125,37 @@ class Board:
         else:
             piece = player.pieces['K']
 
-        legal_moves = self.find_legal_moves(piece)
+        legal_moves = self.find_legal_moves(player, piece)
+        
+        ### if len(legal_moves) == 0: *CHECKMATE OR TIE* ###
         if len(legal_moves) == 1:
             new_destination = legal_moves[0]
         else:
             new_destination = legal_moves[random.randint(0, len(legal_moves) - 1)]
-        row = new_destination[0]
-        col = new_destination[1]
+            
+        # move:
+        self.state[piece.row][piece.col] = '*'
+        player.pieces[piece.type].row = new_destination[0]
+        player.pieces[piece.type].col = new_destination[1]
+        self.turn += 1
 
-        self.move(player.id, piece.type, row, col)
-
-    def find_legal_moves(self, piece):
+    def find_legal_moves(self, player, piece):
+        opponent = self.player_y if player.id == 'x' else self.player_x
+        
         legal_tiles = []
         if piece.type == 'R':
             for r in range(1, 9):
-                if self.legal_move(piece, r, piece.col):
-                    legal_tiles.append((r, piece.col))
+                if (self.legal_move(piece, r, piece.col) and
+                    self.tile_is_safe(opponent, r, piece.col)):
+                        legal_tiles.append((r, piece.col))
             for c in range(1, 9):
-                if self.legal_move(piece, piece.row, c):
-                    legal_tiles.append((piece.row, c))
+                if (self.legal_move(piece, piece.row, c) and
+                    self.tile_is_safe(opponent, piece.row, c)):
+                        legal_tiles.append((piece.row, c))
         else:       # piece = king
             for r in range(piece.row - 1, piece.row + 2):
                 for c in range(piece.col - 1, piece.col + 2):
-                    if self.legal_move(piece, r, c):
-                        legal_tiles.append((r, c))
+                    if (self.legal_move(piece, r, c) and
+                        self.tile_is_safe(opponent, r, c)):
+                            legal_tiles.append((r, c))
         return legal_tiles
