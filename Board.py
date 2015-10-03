@@ -15,6 +15,7 @@ class Board:
                       [' ', '1', '2', '3', '4', '5', '6', '7', '8']]
         self.player_x = player_one
         self.player_y = player_two
+        self.move_log = ''
 
     def display(self):
         for p in self.player_x.pieces.values():
@@ -23,6 +24,7 @@ class Board:
             self.state[p.row][p.col] = p.player + p.type
         self.state[0][1] = str(self.turn)
         print('\n'.join(''.join(['{:3}'.format(item) for item in row]) for row in self.state))
+        print(self.move_log)
 
     def move(self, player_id, piece_id, new_row, new_col):
         if player_id == 'x':
@@ -32,16 +34,25 @@ class Board:
             hero = self.player_y
             opponent = self.player_x
         piece = hero.pieces[piece_id]
-        
+
         if piece_id == 'K' and not self.tile_is_safe(opponent, new_row, new_col):
             print('\nIllegal move.')
         elif not self.legal_move(piece, new_row, new_col):
             print('\nIllegal move.')
         else:
+            # If playerY eats playerX's rook:
+            if ('R' in self.player_x.pieces and
+                new_row == self.player_x.pieces['R'].row and
+                new_col == self.player_x.pieces['R'].col):
+                    del self.player_x.pieces['R']
+            # Move piece:
             self.state[piece.row][piece.col] = '*'
             hero.pieces[piece_id].row = new_row
             hero.pieces[piece_id].col = new_col
+
             self.turn += 1
+
+        self.move_log = piece.player + piece.type + ' to ' + str(new_row) + ',' + str(new_col)
 
     def tile_is_safe(self, enemy, tile_row, tile_col):
         for p in enemy.pieces.values():
@@ -65,7 +76,7 @@ class Board:
 
         elif piece.type == 'K':
             if (self.is_adjacent_spot(piece.row, piece.col, new_row, new_col) and
-                self.state[new_row][new_col][0] != piece.player):   # tile unoccupied by ally
+                self.state[new_row][new_col][0] != piece.player):   # unoccupied by ally
                 return True
 
         else:
@@ -74,7 +85,6 @@ class Board:
     def is_adjacent_spot(self, row, col, new_row, new_col):
         # Return True if new coordinates are adjacent (horizontally,
         # vertically, or diagonally) to the old coordinates.
-        adj_tiles = []
         for r in range(row - 1, row + 2):
             for c in range(col - 1, col + 2):
                 if (new_row, new_col) == (r, c):
@@ -109,11 +119,10 @@ class Board:
                 i -= 1
         return True
 
-
     def ai_move(self, player):
         if player.id == 'x':
             key = random.randint(0, 1)
-            if key == 0:
+            if key == 0 or 'R' not in player.pieces:
                 piece = player.pieces['K']
             else:
                 piece = player.pieces['R']
@@ -121,22 +130,25 @@ class Board:
             piece = player.pieces['K']
 
         legal_moves = self.find_legal_moves(player, piece)
-        
+
         ### if len(legal_moves) == 0: *CHECKMATE OR TIE* ###
         if len(legal_moves) == 1:
             new_destination = legal_moves[0]
         else:
             new_destination = legal_moves[random.randint(0, len(legal_moves) - 1)]
-            
+
         # move:
         self.state[piece.row][piece.col] = '*'
         player.pieces[piece.type].row = new_destination[0]
         player.pieces[piece.type].col = new_destination[1]
         self.turn += 1
 
+        self.move_log = piece.player + piece.type + ' to ' + \
+                        str(new_destination[0]) + ',' + str(new_destination[1])
+
     def find_legal_moves(self, player, piece):
         opponent = self.player_y if player.id == 'x' else self.player_x
-        
+
         legal_tiles = []
         if piece.type == 'R':
             for r in range(1, 9):
