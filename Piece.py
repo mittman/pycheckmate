@@ -1,7 +1,7 @@
 class Piece:
-    def __init__(self, piece_type, player_number, row=None, col=None):
+    def __init__(self, player_number, piece_type, row=None, col=None):
+        self.player = player_number.id
         self.type = piece_type
-        self.player = player_number
         self.row = row
         self.col = col
         self.prev_coords = (row, col)

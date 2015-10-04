@@ -17,7 +17,7 @@ class Board:
         self.player_x = player_one
         self.player_y = player_two
         self.move_log = ''
-        
+
     def display(self):
         for p in self.player_x.pieces.values():
             self.state[p.row][p.col] = p.player + p.type
@@ -173,6 +173,8 @@ class Board:
         return legal_tiles
 
     def identify_players(self, current_player):
+        #print(help(current_player))
+        #exit(0)
         if current_player.id == 'x':
             hero = self.player_x
             villain = self.player_y

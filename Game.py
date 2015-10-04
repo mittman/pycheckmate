@@ -79,13 +79,13 @@ class Game:
 			exit(2)
 
 		if piece_name == "PlayerX King":
-			piece_id = Piece('K', 'x', moveH, moveV)
+			piece_id = Piece(player_x, 'K', moveH, moveV)
 			player_x.add_piece(piece_id)
 		elif piece_name == "PlayerX Rook":
-			piece_id = Piece('R', 'x', moveH, moveV)
+			piece_id = Piece(player_x, 'R', moveH, moveV)
 			player_x.add_piece(piece_id)
 		elif piece_name == "PlayerY King":
-			piece_id = Piece('K', 'y', moveH, moveV)
+			piece_id = Piece(player_y, 'K', moveH, moveV)
 			player_y.add_piece(piece_id)
 		else:
 			print("ERROR: expected valid piece")
@@ -108,26 +108,26 @@ class Game:
 	def parse_entry(self, entry, game, board, player_x, player_y, num):
 		if re.match(r"x\.K\([1-8],[1-8]\)", entry):
 			moveH, moveV = game.split_entry(entry)
-			game.add_or_move(board, player_x, 'K', 'x', moveH, moveV, num)
+			game.add_or_move(board, player_x, 'K', moveH, moveV, num)
 		elif re.match(r"x\.R\([1-8],[1-8]\)", entry):
 			moveH, moveV = game.split_entry(entry)
-			game.add_or_move(board, player_x, 'R', 'x', moveH, moveV, num)
+			game.add_or_move(board, player_x, 'R', moveH, moveV, num)
 		elif re.match(r"y\.K\([1-8],[1-8]\)", entry):
 			moveH, moveV = game.split_entry(entry)
-			game.add_or_move(board, player_y, 'K', 'y', moveH, moveV, num)
+			game.add_or_move(board, player_y, 'K', moveH, moveV, num)
 		else:
 			print("ERROR: invalid entry from file")
 
-	def add_or_move(self, board, player, piece_id, player_id, moveH, moveV, num):
+	def add_or_move(self, board, player, piece_id, moveH, moveV, num):
 		if num == 1:
-			new_piece = Piece(piece_id, player_id, moveH, moveV)
-			if player_id == 'x':
+			new_piece = Piece(player, piece_id, moveH, moveV)
+			if player.id == 'x':
 				player.add_piece(new_piece)
-			elif player_id == 'y':
+			elif player.id == 'y':
 				player.add_piece(new_piece)
 			else:
 				print("ERROR: invalid player")
 		else:
-			if board.state[moveH][moveV] != player_id + piece_id:
-				print("\n\nMove " + player_id + piece_id + " to " + str(moveH) + "," + str(moveV))
-				board.move(player_id, piece_id, moveH, moveV)
+			if board.state[moveH][moveV] != player.id + piece_id:
+				print("\n\nMove " + player.id + piece_id + " to " + str(moveH) + "," + str(moveV))
+				board.move(player, piece_id, moveH, moveV)

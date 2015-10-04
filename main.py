@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os, sys, re
+from Ai import Ai
 from Board import Board
 from File import File
 from Game import Game
@@ -62,12 +63,12 @@ def interactive():
 
 
 def test_case():
-    king_x = Piece('K', 'x', 3, 5)
-    rook_x = Piece('R', 'x', 5, 7)
-    king_y = Piece('K', 'y', 4, 3)
-
     player_x = Player('x')
     player_y = Player('y')
+
+    king_x = Piece(player_x, 'K', 3, 5)
+    rook_x = Piece(player_x, 'R', 5, 7)
+    king_y = Piece(player_y, 'K', 4, 3)
 
     player_x.add_piece(rook_x)
     player_x.add_piece(king_x)
@@ -77,17 +78,17 @@ def test_case():
     b.display()
 
     # legal moves test:
-    b.move('x', 'R', 5, 5)
+    b.move(player_x, 'R', 5, 5)
     b.display()
-    b.move('x', 'K', 4, 5)
+    b.move(player_x, 'K', 4, 5)
     b.display()
-    b.move('y', 'K', 3, 3)
+    b.move(player_y, 'K', 3, 3)
     b.display()
 
     # illegal moves test:
-    b.move('y', 'K', 3, 4)
+    b.move(player_y, 'K', 3, 4)
     b.display()
-    b.move('x', 'R', 2, 5)
+    b.move(player_x, 'R', 2, 5)
     b.display()
 
     # AI random moves test:
