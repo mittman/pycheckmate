@@ -1,5 +1,5 @@
 import random
-
+from File import File
 
 class Board:
 	def __init__(self, player_one, player_two):
@@ -24,17 +24,19 @@ class Board:
 		for p in self.player_y.pieces.values():
 			self.state[p.row][p.col] = p.player + p.type
 		self.state[0][1] = str(self.turn)
-		print('\n'.join(''.join(['{:3}'.format(item) for item in row]) for row in self.state))
-		print(self.move_log)
+		File.print('\n'.join(''.join(['{:3}'.format(item) for item in row]) for row in self.state))
+		File.print(self.move_log)
 
 	def move(self, player, piece_id, new_row, new_col):
 		hero, opponent = self.identify_players(player)
 		piece = hero.pieces[piece_id]
 
 		if piece_id == 'K' and not self.tile_is_safe(opponent, new_row, new_col):
-			print('\nIllegal move.')
+			print('\n')
+			File.error("Illegal move.")
 		elif not self.legal_move(piece, new_row, new_col):
-			print('\nIllegal move.')
+			print('\n')
+			File.error("Illegal move.")
 		else:
 			# If playerY eats playerX's rook:
 			if ('R' in self.player_x.pieces and
@@ -173,8 +175,6 @@ class Board:
 		return legal_tiles
 
 	def identify_players(self, current_player):
-		#print(help(current_player))
-		#exit(0)
 		if current_player.id == 'x':
 			hero = self.player_x
 			villain = self.player_y

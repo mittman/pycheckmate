@@ -1,4 +1,5 @@
 from Board import Board
+from File import File
 from Player import Player
 from Piece import Piece
 import copy
@@ -18,7 +19,7 @@ class Ai:
 			move = self.best_move_y(player)
 		if move is None:
 			### GAME OVER, either tie or mate ###
-			print('game over, do something')
+			File.prompt('game over, do something')
 
 		
 

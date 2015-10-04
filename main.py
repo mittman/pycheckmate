@@ -10,7 +10,8 @@ from Player import Player
 
 
 def test_file(board, game, player_x, player_y):
-	filename = File.open_file()
+	io = File()
+	filename = io.open_file()
 
 	# open file
 	try:
