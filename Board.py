@@ -1,5 +1,6 @@
 import random
 
+
 class Board:
     def __init__(self, player_one, player_two):
         self.turn = 1
@@ -17,22 +18,8 @@ class Board:
         self.player_y = player_two
         self.move_log = ''
 
-    def display(self):
-        for p in self.player_x.pieces.values():
-            self.state[p.row][p.col] = p.player + p.type
-        for p in self.player_y.pieces.values():
-            self.state[p.row][p.col] = p.player + p.type
-        self.state[0][1] = str(self.turn)
-        print('\n'.join(''.join(['{:3}'.format(item) for item in row]) for row in self.state))
-        print(self.move_log)
-
-    def move(self, player_id, piece_id, new_row, new_col):
-        if player_id == 'x':
-            hero = self.player_x
-            opponent = self.player_y
-        else:   # Can safely assume player_id == 'y'
-            hero = self.player_y
-            opponent = self.player_x
+    def move(self, player, piece_id, new_row, new_col):
+        hero, opponent = self.identify_players(player)
         piece = hero.pieces[piece_id]
 
         if piece_id == 'K' and not self.tile_is_safe(opponent, new_row, new_col):
@@ -46,18 +33,28 @@ class Board:
                 new_col == self.player_x.pieces['R'].col):
                     del self.player_x.pieces['R']
             # Move piece:
-            self.state[piece.row][piece.col] = '*'
-            hero.pieces[piece_id].row = new_row
-            hero.pieces[piece_id].col = new_col
-
-            self.turn += 1
+            self.make_move(piece, (new_row, new_col))
 
         self.move_log = piece.player + piece.type + ' to ' + str(new_row) + ',' + str(new_col)
 
+    def make_move(self, piece, new_coords):
+        self.state[piece.row][piece.col] = '*'
+        piece.prev_coords = (piece.row, piece.col)
+        piece.row = new_coords[0]
+        piece.col = new_coords[1]
+        self.turn += 1
+
     def tile_is_safe(self, enemy, tile_row, tile_col):
+        # Make new tile temporarily empty:
+        owner = self.state[tile_row][tile_col]
+        self.state[tile_row][tile_col] = '*'
+
+        # Make sure it's safe:
         for p in enemy.pieces.values():
             if self.legal_move(p, tile_row, tile_col):
                 return False
+
+        self.state[tile_row][tile_col] = owner
         return True
 
     def legal_move(self, piece, new_row, new_col):
@@ -69,8 +66,8 @@ class Board:
             return False
 
         if piece.type == 'R':
-            if (new_row == piece.row or new_col == piece.col and    # horizontal/vertical move
-                self.state[new_row][new_col] == '*' and             # space unoccupied
+            if ((new_row == piece.row or new_col == piece.col) and      # horizontal/vertical move
+                self.state[new_row][new_col][0] != piece.player and   # space unoccupied by ally
                 self.is_clear_path(piece.row, piece.col, new_row, new_col)):
                     return True
 
@@ -129,7 +126,7 @@ class Board:
         else:
             piece = player.pieces['K']
 
-        legal_moves = self.find_legal_moves(player, piece)
+        legal_moves = self.find_legal_moves(piece)
 
         ### if len(legal_moves) == 0: *CHECKMATE OR TIE* ###
         if len(legal_moves) == 1:
@@ -138,16 +135,15 @@ class Board:
             new_destination = legal_moves[random.randint(0, len(legal_moves) - 1)]
 
         # move:
-        self.state[piece.row][piece.col] = '*'
-        player.pieces[piece.type].row = new_destination[0]
-        player.pieces[piece.type].col = new_destination[1]
-        self.turn += 1
+        self.make_move(piece, (new_destination[0], new_destination[1]))
 
         self.move_log = piece.player + piece.type + ' to ' + \
                         str(new_destination[0]) + ',' + str(new_destination[1])
 
-    def find_legal_moves(self, player, piece):
-        opponent = self.player_y if player.id == 'x' else self.player_x
+
+
+    def find_legal_moves(self, piece):
+        opponent = self.player_y if piece.player == 'x' else self.player_x
 
         legal_tiles = []
         if piece.type == 'R':
@@ -159,10 +155,19 @@ class Board:
                 if (self.legal_move(piece, piece.row, c) and
                     self.tile_is_safe(opponent, piece.row, c)):
                         legal_tiles.append((piece.row, c))
-        else:       # piece = king
+        else:   # piece = king
             for r in range(piece.row - 1, piece.row + 2):
                 for c in range(piece.col - 1, piece.col + 2):
                     if (self.legal_move(piece, r, c) and
                         self.tile_is_safe(opponent, r, c)):
                             legal_tiles.append((r, c))
         return legal_tiles
+
+    def identify_players(self, current_player):
+        if current_player.id == 'x':
+            hero = self.player_x
+            villain = self.player_y
+        else:   # Can safely assume player_id == 'y'
+            hero = self.player_y
+            villain = self.player_x
+        return hero, villain
