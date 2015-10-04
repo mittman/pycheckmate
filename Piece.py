@@ -4,3 +4,8 @@ class Piece:
         self.player = player_number
         self.row = row
         self.col = col
+        self.prev_coords = (row, col)
+
+    def undo_move(self):
+        self.row = self.prev_coords[0]
+        self.col = self.prev_coords[1]
