@@ -17,6 +17,15 @@ class Board:
         self.player_x = player_one
         self.player_y = player_two
         self.move_log = ''
+        
+    def display(self):
+        for p in self.player_x.pieces.values():
+            self.state[p.row][p.col] = p.player + p.type
+        for p in self.player_y.pieces.values():
+            self.state[p.row][p.col] = p.player + p.type
+        self.state[0][1] = str(self.turn)
+        print('\n'.join(''.join(['{:3}'.format(item) for item in row]) for row in self.state))
+        print(self.move_log)
 
     def move(self, player, piece_id, new_row, new_col):
         hero, opponent = self.identify_players(player)
