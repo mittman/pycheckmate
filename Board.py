@@ -3,7 +3,6 @@ from File import File
 
 class Board:
 	def __init__(self, player_one, player_two):
-		self.turn = 1
 		self.state = [['', '		 ', 'Turn: ', ''],
 					  ['1', '*', '*', '*', '*', '*', '*', '*', '*'],
 					  ['2', '*', '*', '*', '*', '*', '*', '*', '*'],
@@ -45,11 +44,10 @@ class Board:
 					del self.player_x.pieces['R']
 			# Move piece:
 			self.make_move(player, piece, (new_row, new_col))
-			player.turn += 1
 
 		self.move_log = piece.player + piece.type + ' to ' + str(new_row) + ',' + str(new_col)
 
-	def make_move(self, piece, new_coords):
+	def make_move(self, player, piece, new_coords):
 		self.state[piece.row][piece.col] = '*'
 		piece.prev_coords = (piece.row, piece.col)
 		piece.row = new_coords[0]
@@ -148,7 +146,7 @@ class Board:
 			new_destination = legal_moves[random.randint(0, len(legal_moves) - 1)]
 
 		# move:
-		self.make_move(piece, (new_destination[0], new_destination[1]))
+		self.make_move(player, piece, (new_destination[0], new_destination[1]))
 
 		self.move_log = piece.player + piece.type + ' to ' + \
 						str(new_destination[0]) + ',' + str(new_destination[1])

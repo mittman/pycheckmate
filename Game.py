@@ -7,10 +7,10 @@ class Game:
 		mode = None
 		end = 0
 
-		File.prompt("Is this a test (Y/n)?")
+		File.prompt("Is this a test?")
 		File.print("y) yes, this is a test")
 		File.print("n) no, start a new game")
-		mode = input("Select (y/N): ")
+		mode = input("Select (Y/n): ")
 
 		File.prompt("MAX NUMBER OF MOVES?")
 		end = input("Input (default 35): ")
