@@ -45,15 +45,16 @@ class Board:
 					del self.player_x.pieces['R']
 			# Move piece:
 			self.make_move(player, piece, (new_row, new_col))
+			player.turn += 1
 
 		self.move_log = piece.player + piece.type + ' to ' + str(new_row) + ',' + str(new_col)
 
-	def make_move(self, player, piece, new_coords):
+	def make_move(self, piece, new_coords):
 		self.state[piece.row][piece.col] = '*'
 		piece.prev_coords = (piece.row, piece.col)
 		piece.row = new_coords[0]
 		piece.col = new_coords[1]
-		self.state[0][0] = "player" + player.id.upper()
+		self.state[0][0] = "player" + piece.player.upper()
 		player.turn += 1
 
 	def tile_is_safe(self, enemy, tile_row, tile_col):
@@ -147,7 +148,7 @@ class Board:
 			new_destination = legal_moves[random.randint(0, len(legal_moves) - 1)]
 
 		# move:
-		self.make_move(player, piece, (new_destination[0], new_destination[1]))
+		self.make_move(piece, (new_destination[0], new_destination[1]))
 
 		self.move_log = piece.player + piece.type + ' to ' + \
 						str(new_destination[0]) + ',' + str(new_destination[1])
