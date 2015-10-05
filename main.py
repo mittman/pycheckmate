@@ -63,6 +63,7 @@ def interactive():
 			b.display()
 
 
+# Note: function deprecated
 def test_case():
 	player_x = Player('x')
 	player_y = Player('y')
@@ -101,5 +102,12 @@ def test_case():
 
 
 if __name__ == '__main__':
-	#test_case()
-	interactive()
+	try:
+		#test_case()
+		interactive()
+	except KeyboardInterrupt:
+		print("\nExiting...")
+		try:
+			sys.exit(0)
+		except SystemExit:
+			os._exit(0)

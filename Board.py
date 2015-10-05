@@ -22,7 +22,10 @@ class Board:
 			self.state[p.row][p.col] = p.player + p.type
 		for p in self.player_y.pieces.values():
 			self.state[p.row][p.col] = p.player + p.type
-		self.state[0][3] = str(self.player_y.turn)
+		if self.move_log == '':
+			self.state[0][3] = str(0)
+		else:
+			self.state[0][3] = str(self.player_x.turn)
 		File.print('\n'.join(''.join(['{:3}'.format(item) for item in row]) for row in self.state))
 		File.print(self.move_log)
 
