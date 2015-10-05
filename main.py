@@ -79,17 +79,17 @@ def test_case():
 	b.display()
 
 	# legal moves test:
-	b.move(player_x, 'R', 5, 5)
+	b.player_move(player_x, 'R', 5, 5)
 	b.display()
-	b.move(player_x, 'K', 4, 5)
+	b.player_move(player_x, 'K', 4, 5)
 	b.display()
-	b.move(player_y, 'K', 3, 3)
+	b.player_move(player_y, 'K', 3, 3)
 	b.display()
 
 	# illegal moves test:
-	b.move(player_y, 'K', 3, 4)
+	b.player_move(player_y, 'K', 3, 4)
 	b.display()
-	b.move(player_x, 'R', 2, 5)
+	b.player_move(player_x, 'R', 2, 5)
 	b.display()
 
 	# AI random moves test:

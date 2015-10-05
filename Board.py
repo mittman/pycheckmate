@@ -26,7 +26,7 @@ class Board:
 		File.print('\n'.join(''.join(['{:3}'.format(item) for item in row]) for row in self.state))
 		File.print(self.move_log)
 
-	def move(self, player, piece_id, new_row, new_col):
+	def player_move(self, player, piece_id, new_row, new_col):
 		hero, opponent = self.identify_players(player)
 		piece = hero.pieces[piece_id]
 

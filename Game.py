@@ -132,4 +132,4 @@ class Game:
 			if board.state[moveH][moveV] != player.id + piece_id:
 				print('\n\n')
 				File.prompt("MOVE " + player.id + piece_id + " to " + str(moveH) + "," + str(moveV))
-				board.move(player, piece_id, moveH, moveV)
+				board.player_move(player, piece_id, moveH, moveV)
