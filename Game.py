@@ -7,15 +7,15 @@ class Game:
 		mode = None
 		end = 0
 
-		File.prompt("SHALL WE PLAY A GAME?")
-		File.print("y) yes, start a new game")
-		File.print("n) no, this is a test")
+		File.prompt("Is this a test (Y/n)?")
+		File.print("y) yes, this is a test")
+		File.print("n) no, start a new game")
 		mode = input("Select (y/N): ")
 
 		File.prompt("MAX NUMBER OF MOVES?")
 		end = input("Input (default 35): ")
 
-		if re.match(r"[Yy]|YES|yes", mode):
+		if re.match(r"[Nn]|no|NO", mode):
 			File.prompt("NEW GAME")
 			mode = True
 		else:
