@@ -2,6 +2,7 @@ from Board import Board
 from File import File
 from Player import Player
 from Piece import Piece
+import re
 import copy
 
 INFINITY = 9999999
@@ -10,6 +11,34 @@ class Ai:
 	def __init__(self, _board, ply_level=5):
 		self.board = _board
 		self.ply = ply_level
+
+	def opponent_move(self,player,board):
+		if player.id == 'x':
+			piece_name = input('Would you like to move the king or the rook? (r/k)')
+			if re.match(r"[Kk]", piece_name) :
+				piece = player.pieces['K']
+			else:
+				piece = player.pieces['R']
+		else:
+			piece = player.pieces['K']
+
+		legal_moves = board.find_legal_moves(piece)
+
+		for move in legal_moves:	#put X's where valid moves are
+			horizontal, vertical = move
+			board.state[horizontal][vertical] = 'X'
+
+		board.display()
+		horizontal= int(input('Select which coordinate you would like to move to (horizontal):'))	#TODO: input validation
+		vertical= int(input('Select which coordinate you would like to move to (vertical):'))
+
+		for move in legal_moves:	#put *'s back where X's were
+			temp_hor, temp_vert = move
+			board.state[temp_hor][temp_vert] = '*'
+		board.make_move(player,piece, (horizontal, vertical))
+
+		board.move_log = piece.player + piece.type + ' to ' + \
+						str(horizontal) + ',' + str(vertical)
 
 
 	def move(self, player):

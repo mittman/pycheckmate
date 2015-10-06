@@ -36,19 +36,39 @@ def interactive():
 	mode, end = g.game_type()
 	end = int(end)
 
-	if mode:
+	if mode:	#mode is true means new game
+		localPlayer = input("Are you playing as PlayerX or PlayerY (x/y): ")	#Maybe change wording later -Brendon
+		if re.match(r"[Xx]", localPlayer):
+			localPlayer = 'x'
+		else:
+			localPlayer = 'y'
 		player_x = Player('x')
 		player_y = Player('y')
 		b = Board(player_x, player_y)
+		ai = Ai(b)	#declared AI here for now -Brendon
 		remain = [ 'PlayerX King', 'PlayerX Rook', 'PlayerY King' ]
 		g.ask_piece(b, player_x, player_y, remain)
 
+		if(localPlayer == 'x'):	#if local player is playerX, PlayerX is our ai moves, PlayerY is opponents moves inputted by us
+			for i in range(0, end):
+				b.ai_move(player_x)
+				b.display()
+				ai.opponent_move(player_y, b)
+				# b.ai_move(player_y)
+				b.display()
+		else:
+			for i in range(0, end):
+				# b.ai_move(player_x)
+				ai.opponent_move(player_x, b)
+				b.display()
+				b.ai_move(player_y)
+				b.display()
 		# AI random moves test:
-		for i in range(0, end):
-			b.ai_move(player_x)
-			b.display()
-			b.ai_move(player_y)
-			b.display()
+		# for i in range(0, end):
+		# 	b.ai_move(player_x)
+		# 	b.display()
+		# 	b.ai_move(player_y)
+		# 	b.display()
 	else:
 		player_x = Player('x')
 		player_y = Player('y')
