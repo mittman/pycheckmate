@@ -33,13 +33,16 @@ class Board:
 	def player_move(self, player, piece_id, new_row, new_col):
 		hero, opponent = self.identify_players(player)
 		piece = hero.pieces[piece_id]
+		self.state[piece.row][piece.col] = '*'
 
 		if piece_id == 'K' and not self.tile_is_safe(opponent, new_row, new_col):
 			print('\n')
 			File.error("Illegal move.")
+			self.state[piece.row][piece.col] = piece.player + piece.type
 		elif not self.legal_move(piece, new_row, new_col):
 			print('\n')
 			File.error("Illegal move.")
+			self.state[piece.row][piece.col] = piece.player + piece.type
 		else:
 			# If playerY eats playerX's rook:
 			if ('R' in self.player_x.pieces and
@@ -162,6 +165,7 @@ class Board:
 
 	def find_legal_moves(self, piece):
 		opponent = self.player_y if piece.player == 'x' else self.player_x
+		self.state[piece.row][piece.col] = '*'
 
 		legal_tiles = []
 		if piece.type == 'R':
@@ -179,6 +183,8 @@ class Board:
 					if (self.legal_move(piece, r, c) and
 						self.tile_is_safe(opponent, r, c)):
 							legal_tiles.append((r, c))
+							
+		self.state[piece.row][piece.col] = piece.player + piece.type
 		return legal_tiles
 
 	def identify_players(self, current_player):
