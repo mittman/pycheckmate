@@ -26,6 +26,7 @@ class Board:
 			self.state[0][3] = str(0)
 		else:
 			self.state[0][3] = str(self.player_x.turn)
+		File.print('')
 		File.print('\n'.join(''.join(['{:3}'.format(item) for item in row]) for row in self.state))
 		File.print(self.move_log)
 
@@ -143,6 +144,9 @@ class Board:
 		legal_moves = self.find_legal_moves(piece)
 
 		### if len(legal_moves) == 0: *CHECKMATE OR TIE* ###
+		if len(legal_moves) == 0:
+			File.print("game over")
+			exit(0)
 		if len(legal_moves) == 1:
 			new_destination = legal_moves[0]
 		else:
