@@ -70,6 +70,8 @@ class Ai:
 			state.board.display()
 
 	def opponent_move(self,player,board):
+		horizontal = 0
+		vertical = 0
 		if player.id == 'x':
 			piece_name = input('Would you like to move the king or the rook? (r/k)')
 			if re.match(r"[Kk]", piece_name) :
@@ -86,8 +88,23 @@ class Ai:
 			board.state[horizontal][vertical] = 'X'
 
 		board.display()
-		horizontal= int(input('Select which coordinate you would like to move to (horizontal):'))	#TODO: input validation
-		vertical= int(input('Select which coordinate you would like to move to (vertical):'))
+
+		validInput = False
+		while not validInput:
+
+			horizontal= input('Select which coordinate you would like to move to (horizontal):')
+			vertical= input('Select which coordinate you would like to move to (vertical):')
+			try:	#validate input
+				horizontal = int(horizontal)
+				vertical = int(vertical)
+			except ValueError: validInput = False
+			for move in legal_moves:	#check if moves match a legal move
+				temp_hor, temp_vert = move
+				if horizontal == temp_hor and vertical == temp_vert:
+					validInput = True
+			if validInput != True:
+				print('Please select a legal move.')
+
 
 		for move in legal_moves:	#put *'s back where X's were
 			temp_hor, temp_vert = move
