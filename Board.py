@@ -203,6 +203,8 @@ class Board:
 	def new_positions(self):
 		# Terrible way of doing this, but whatever
 		key = ''
+		if 'K' not in self.player.pieces:
+			return key
 		if 'R' in self.player_x.pieces:
 			key = 'xR' + str(self.player_x.pieces['R'].row) + str(self.player_x.pieces['R'].col)
 		key += 'xK' + str(self.player_x.pieces['K'].row) + str(self.player_x.pieces['K'].col)
