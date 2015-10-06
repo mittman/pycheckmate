@@ -51,11 +51,14 @@ class Board:
 		self.move_log = piece.player + piece.type + ' to ' + str(new_row) + ',' + str(new_col)
 
 	def make_move(self, player, piece, new_coords):
+		new_row = new_coords[0]
+		new_col = new_coords[1]
 		# If playerY eats playerX's rook:
-			if ('R' in self.player_x.pieces and
-				new_row == self.player_x.pieces['R'].row and
-				new_col == self.player_x.pieces['R'].col):
-					del self.player_x.pieces['R']
+		if ('R' in self.player_x.pieces and
+			new_row == self.player_x.pieces['R'].row and \
+			new_col == self.player_x.pieces['R'].col):
+				del self.player_x.pieces['R']
+
 		self.state[piece.row][piece.col] = '*'
 		piece.prev_coords = (piece.row, piece.col)
 		piece.row = new_coords[0]
@@ -199,11 +202,11 @@ class Board:
 			villain = self.player_x
 		return hero, villain
 		
-    # Function to just serve as a key to this current state
+	# Function to just serve as a key to this current state
 	def new_positions(self):
 		# Terrible way of doing this, but whatever
 		key = ''
-		if 'K' not in self.player.pieces:
+		if 'K' not in self.player_x.pieces:
 			return key
 		if 'R' in self.player_x.pieces:
 			key = 'xR' + str(self.player_x.pieces['R'].row) + str(self.player_x.pieces['R'].col)

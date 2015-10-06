@@ -26,6 +26,27 @@ class File:
 			exit(1)
 		return filename
 
+	def test_file(board, game, player_x, player_y):
+		io = File()
+		filename = io.open_file()
+
+		# open file
+		try:
+			with open(filename, 'r', 1) as f:
+				num = 1
+				for line in f:
+					line = line.rstrip()
+					line = line.split(', ')
+
+					for i in range(len(line)):
+						game.parse_entry(line[i], game, board, player_x, player_y, num)
+
+					board.display()
+					num += 1
+
+		except ValueError: "cannot read file"
+		f.close()
+
 	def print(text):
 		if stdout:
 			print(text)

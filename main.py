@@ -8,29 +8,6 @@ from Game import Game
 from Piece import Piece
 from Player import Player
 
-
-def test_file(board, game, player_x, player_y):
-	io = File()
-	filename = io.open_file()
-
-	# open file
-	try:
-		with open(filename, 'r', 1) as f:
-			num = 1
-			for line in f:
-				line = line.rstrip()
-				line = line.split(', ')
-
-				for i in range(len(line)):
-					game.parse_entry(line[i], game, board, player_x, player_y, num)
-
-				board.display()
-				num += 1
-
-	except ValueError: "cannot read file"
-	f.close()
-
-
 def interactive():
 	g = Game()
 	mode, end = g.game_type()
@@ -73,7 +50,7 @@ def interactive():
 		player_x = Player('x')
 		player_y = Player('y')
 		b = Board(player_x, player_y)
-		test_file(b, g, player_x, player_y)
+		File.test_file(b, g, player_x, player_y)
 
 		# AI random moves test:
 		for i in range(0, end):
@@ -152,6 +129,7 @@ def test2():
 
 if __name__ == '__main__':
 	try:
+		#test2()
 		#test_case()
 		interactive()
 	except KeyboardInterrupt:
