@@ -16,6 +16,8 @@ class Board:
 		self.player_x = player_one
 		self.player_y = player_two
 		self.move_log = ''
+		# piece_positions acts as a key to this current state:
+		self.piece_positions = self.new_positions()
 
 	def display(self):
 		for p in self.player_x.pieces.values():
@@ -44,22 +46,23 @@ class Board:
 			File.error("Illegal move.")
 			self.state[piece.row][piece.col] = piece.player + piece.type
 		else:
-			# If playerY eats playerX's rook:
-			if ('R' in self.player_x.pieces and
-				new_row == self.player_x.pieces['R'].row and
-				new_col == self.player_x.pieces['R'].col):
-					del self.player_x.pieces['R']
-			# Move piece:
 			self.make_move(player, piece, (new_row, new_col))
 
 		self.move_log = piece.player + piece.type + ' to ' + str(new_row) + ',' + str(new_col)
 
 	def make_move(self, player, piece, new_coords):
+		# If playerY eats playerX's rook:
+			if ('R' in self.player_x.pieces and
+				new_row == self.player_x.pieces['R'].row and
+				new_col == self.player_x.pieces['R'].col):
+					del self.player_x.pieces['R']
 		self.state[piece.row][piece.col] = '*'
 		piece.prev_coords = (piece.row, piece.col)
 		piece.row = new_coords[0]
 		piece.col = new_coords[1]
 		self.state[0][0] = "player" + piece.player.upper()
+		self.state[piece.row][piece.col] = piece.player + piece.type
+		self.piece_positions = self.new_positions()
 		player.turn += 1
 
 	def tile_is_safe(self, enemy, tile_row, tile_col):
@@ -195,3 +198,18 @@ class Board:
 			hero = self.player_y
 			villain = self.player_x
 		return hero, villain
+		
+    # Function to just serve as a key to this current state
+	def new_positions(self):
+		# Terrible way of doing this, but whatever
+		key = ''
+		if 'R' in self.player_x.pieces:
+			key = 'xR' + str(self.player_x.pieces['R'].row) + str(self.player_x.pieces['R'].col)
+		key += 'xK' + str(self.player_x.pieces['K'].row) + str(self.player_x.pieces['K'].col)
+		key += 'yK' + str(self.player_y.pieces['K'].row) + str(self.player_y.pieces['K'].col)
+		return key
+
+	def undo_move(self, piece):
+		self.state[piece.row][piece.col] = '*'
+		piece.undo_move()
+		self.state[piece.row][piece.col] = piece.player + piece.type
