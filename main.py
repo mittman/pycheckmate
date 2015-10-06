@@ -14,11 +14,6 @@ def interactive():
 	end = int(end)
 
 	if mode:	#mode is true means new game
-		localPlayer = input("Are you playing as PlayerX or PlayerY (x/y): ")	#Maybe change wording later -Brendon
-		if re.match(r"[Xx]", localPlayer):
-			localPlayer = 'x'
-		else:
-			localPlayer = 'y'
 		player_x = Player('x')
 		player_y = Player('y')
 		b = Board(player_x, player_y)
@@ -26,7 +21,15 @@ def interactive():
 		remain = [ 'PlayerX King', 'PlayerX Rook', 'PlayerY King' ]
 		g.ask_piece(b, player_x, player_y, remain)
 
-		if(localPlayer == 'x'):	#if local player is playerX, PlayerX is our ai moves, PlayerY is opponents moves inputted by us
+		localPlayer = input("Who am I PlayerX or PlayerY (x/y): ")
+		if re.match(r"[Xx]", localPlayer):
+			localPlayer = 'x'
+		else:
+			localPlayer = 'y'
+
+		# if local player is playerX, PlayerX is our ai moves
+		# PlayerY is opponents moves inputted by us
+		if(localPlayer == 'x'):
 			for i in range(0, end):
 				b.ai_move(player_x)
 				b.display()

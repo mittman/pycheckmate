@@ -69,15 +69,28 @@ class Ai:
 			print('PLY LEVEL ' + str(state.ply_level))
 			state.board.display()
 
-	def opponent_move(self,player,board):
+	def opponent_move(self, player, board):
 		horizontal = 0
 		vertical = 0
 		if player.id == 'x':
-			piece_name = input('Would you like to move the king or the rook? (r/k)')
-			if re.match(r"[Kk]", piece_name) :
+			File.prompt("Move which PlayerX piece?")
+			File.print("1) Rook")
+			File.print("2) King")
+
+			option = input("Select [1-2]: ")
+			try:
+				option = int(option)
+			except ValueError:
+				File.error("Try again")
+				self.opponent_move(player, board)
+
+			if option == 1:
+				piece = player.pieces['R']
+			elif option == 2:
 				piece = player.pieces['K']
 			else:
-				piece = player.pieces['R']
+				File.error("Try again")
+				self.opponent_move(player, board)
 		else:
 			piece = player.pieces['K']
 
@@ -85,15 +98,20 @@ class Ai:
 
 		for move in legal_moves:	#put X's where valid moves are
 			horizontal, vertical = move
-			board.state[horizontal][vertical] = 'X'
+			board.state[horizontal][vertical] = '+'
 
 		board.display()
 
 		validInput = False
 		while not validInput:
+			if piece.type == 'K':
+				name = "King"
+			elif piece.type == 'R':
+				name = "Rook"
 
-			horizontal= input('Select which coordinate you would like to move to (horizontal):')
-			vertical= input('Select which coordinate you would like to move to (vertical):')
+			File.prompt("Move " + name + " to coordinates")
+			horizontal= input("Horizontal [1-8]: ")
+			vertical= input("Vertical [1-8]: ")
 			try:	#validate input
 				horizontal = int(horizontal)
 				vertical = int(vertical)
@@ -103,7 +121,7 @@ class Ai:
 				if horizontal == temp_hor and vertical == temp_vert:
 					validInput = True
 			if validInput != True:
-				print('Please select a legal move.')
+				File.error("Please select a legal move.")
 
 
 		for move in legal_moves:	#put *'s back where X's were
