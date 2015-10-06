@@ -85,6 +85,12 @@ def interactive():
 
 # Note: function deprecated
 def test_case():
+	## old test case:
+	test1()
+	## new test case:
+	test2()
+
+def test1():
 	player_x = Player('x')
 	player_y = Player('y')
 
@@ -120,6 +126,29 @@ def test_case():
 		b.ai_move(player_y)
 		b.display()
 
+def test2():
+	# king_x = Piece('K', 'x', 3, 1)
+	# rook_x = Piece('R', 'x', 3, 8)
+	# king_y = Piece('K', 'y', 4, 7)
+	
+	king_x = Piece('K', 'x', 6, 7)
+	rook_x = Piece('R', 'x', 7, 7)
+	king_y = Piece('K', 'y', 8, 8)
+	
+	player_x = Player('x')
+	player_y = Player('y')
+	
+	player_x.add_piece(rook_x)
+	player_x.add_piece(king_x)
+	player_y.add_piece(king_y)
+	
+	b = Board(player_x, player_y)
+	b.display()
+	
+	ai = Ai(b, 4)
+	ai.create_tree(player_x)
+	# ai.display_tree(ai.root_node)
+	print(ai.number_of_states)
 
 if __name__ == '__main__':
 	try:
