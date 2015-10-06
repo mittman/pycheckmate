@@ -131,12 +131,12 @@ def test2():
 	# rook_x = Piece('R', 'x', 3, 8)
 	# king_y = Piece('K', 'y', 4, 7)
 
-	king_x = Piece('K', 'x', 6, 7)
-	rook_x = Piece('R', 'x', 7, 7)
-	king_y = Piece('K', 'y', 8, 8)
-
 	player_x = Player('x')
 	player_y = Player('y')
+	
+	king_x = Piece(player_x, 'K', 3, 1)
+	rook_x = Piece(player_x, 'R', 3, 8)
+	king_y = Piece(player_y, 'K', 7, 8)
 
 	player_x.add_piece(rook_x)
 	player_x.add_piece(king_x)
