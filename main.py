@@ -130,21 +130,21 @@ def test2():
 	# king_x = Piece('K', 'x', 3, 1)
 	# rook_x = Piece('R', 'x', 3, 8)
 	# king_y = Piece('K', 'y', 4, 7)
-	
+
 	king_x = Piece('K', 'x', 6, 7)
 	rook_x = Piece('R', 'x', 7, 7)
 	king_y = Piece('K', 'y', 8, 8)
-	
+
 	player_x = Player('x')
 	player_y = Player('y')
-	
+
 	player_x.add_piece(rook_x)
 	player_x.add_piece(king_x)
 	player_y.add_piece(king_y)
-	
+
 	b = Board(player_x, player_y)
 	b.display()
-	
+
 	ai = Ai(b, 4)
 	ai.create_tree(player_x)
 	# ai.display_tree(ai.root_node)
@@ -156,7 +156,10 @@ if __name__ == '__main__':
 		interactive()
 	except KeyboardInterrupt:
 		print("\nExiting...")
+		File.close()
 		try:
 			sys.exit(0)
 		except SystemExit:
 			os._exit(0)
+
+	File.close()

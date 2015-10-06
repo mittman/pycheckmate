@@ -25,11 +25,11 @@ class Ai:
 		
 		self.number_of_states = 0
 	
-	    def create_tree(self, player):
-        self.known_states.add(self.board.piece_positions)
-        self.create_state_tree(self.board, player, 0, self.root_node)
+	def create_tree(self, player):
+		self.known_states.add(self.board.piece_positions)
+		self.create_state_tree(self.board, player, 0, self.root_node)
 
-    # Recursively create state tree to max ply
+	# Recursively create state tree to max ply
 	def create_state_tree(self, board, player, depth, parent):
 		if depth != self.max_ply:   # base case
 			for p in player.pieces.values():
@@ -54,8 +54,8 @@ class Ai:
 						# add this new state to its parent
 						parent.children_nodes.append(new_state)
 				
-				    # undo move from parent board:
-				    # board.undo_move(p)
+					# undo move from parent board:
+					# board.undo_move(p)
 
 
 	def display_tree(self, state):
