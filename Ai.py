@@ -7,10 +7,67 @@ import copy
 
 INFINITY = 9999999
 
+class State:
+	def __init__(self, state_board, moved_piece=None, move_coords=None, depth=0):
+		self.board = state_board
+		self.piece_to_move = moved_piece
+		self.new_coords = move_coords
+		self.children_nodes = []
+		self.ply_level = depth + 1
+
+
 class Ai:
-	def __init__(self, _board, ply_level=5):
+	def __init__(self, _board, ply_level=3):
 		self.board = _board
-		self.ply = ply_level
+		self.max_ply = ply_level
+		self.known_states = set()
+		self.root_node = State(self.board)
+		
+		self.number_of_states = 0
+	
+	    def create_tree(self, player):
+        self.known_states.add(self.board.piece_positions)
+        self.create_state_tree(self.board, player, 0, self.root_node)
+
+    # Recursively create state tree to max ply
+	def create_state_tree(self, board, player, depth, parent):
+		if depth != self.max_ply:   # base case
+			for p in player.pieces.values():
+				for move in board.find_legal_moves(p):
+					# create a new board as a potential new state
+					test_board = copy.deepcopy(board)
+					hero, villain = test_board.identify_players(player)
+					test_piece = hero.pieces[p.type]
+					test_board.make_move(hero, test_piece, move)
+					if test_board.piece_positions not in self.known_states:
+						self.known_states.add(board.piece_positions)
+						# create new child state:
+						new_state = State(test_board, test_piece, move, depth)
+						##### Test:
+						self.number_of_states += 1
+						#print('PLY LEVEL ' + str(new_state.ply_level))
+						#new_state.board.display()
+						
+						# create state tree for opponent's moves from this child state:
+						self.create_state_tree(test_board, villain, depth + 1, new_state)
+						
+						# add this new state to its parent
+						parent.children_nodes.append(new_state)
+				
+				    # undo move from parent board:
+				    # board.undo_move(p)
+
+
+	def display_tree(self, state):
+		if not state.children_nodes:  # children nodes are empty
+			print('PLY LEVEL ' + str(state.ply_level))
+			state.board.display()
+		else:
+			for i in range(0, len(state.children_nodes)):
+				self.display_tree(state.children_nodes[i])
+			print('\n\n')
+			print('PLY LEVEL ' + str(state.ply_level))
+			state.board.display()
 
 	def opponent_move(self,player,board):
 		if player.id == 'x':
