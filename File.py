@@ -53,6 +53,7 @@ class File:
 		# write to file
 		if logfile:
 			log.write(text + '\n')
+			log.flush()
 
 	def prompt(text):
 		if stdout:
@@ -60,6 +61,7 @@ class File:
 		# write to file
 		if logfile:
 			log.write("> " + text + '\n')
+			log.flush()
 
 	def debug(text):
 		if debug:
