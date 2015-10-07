@@ -35,8 +35,7 @@ class Ai:
 			for p in player.pieces.values():
 				moves = board.find_legal_moves(p)
 				if not moves:   # empty list
-					parent.value = 'LEAF NODE'
-				#     self.assign_value(board, player, depth)
+					self.assign_value(board, player, depth)
 				for move in moves:
 					# create a new board as a potential new state
 					test_board = copy.deepcopy(board)
@@ -56,8 +55,7 @@ class Ai:
 					# undo move from parent board:
 					# board.undo_move(p)
 		else:   # Last ply-level state in tree
-			parent.value = 'LEAF NODE'
-		#     self.assign_value(board, player, depth)
+			self.assign_value(board, player, depth)
 
 	def bfs(self):
 		opened = [self.root_node]
@@ -74,18 +72,33 @@ class Ai:
 				print('PLY LEVEL ' + str(c.ply_level))
 				c.board.display()
 				print(c.value)
-
-
-	def display_tree(self, state):
-		if not state.children_nodes:  # children nodes are empty
-			print('PLY LEVEL ' + str(state.ply_level))
-			state.board.display()
+			
+	# If goal state has been reached, return (+/-)infinity, otherwise return minimax value
+	def assign_value(self, board, player, depth):
+		if not board.find_legal_moves(board.player_y.pieces['K']):  # no moves left for playerY
+			return (depth + -INFINITY) if player.id == 'x' else (depth + INFINITY)
 		else:
-			for i in range(0, len(state.children_nodes)):
-				self.display_tree(state.children_nodes[i])
-			print('\n\n')
-			print('PLY LEVEL ' + str(state.ply_level))
-			state.board.display()
+			return self.value(board)
+
+	# Return the value that represents the shortest distance
+	# from player_y's king to the closest corner
+	def value(self, board):
+		y_king_coords = (board.player_y.pieces['K'].row,
+						 board.player_y.pieces['K'].col)
+
+		corner_distance = min(min(self.distance(y_king_coords, (1, 1)),
+								  self.distance(y_king_coords, (1, 8))),
+							  min(self.distance(y_king_coords, (8, 1)),
+								  self.distance(y_king_coords, (8, 8))))
+
+		return corner_distance
+	
+	# Return distance between two points
+	def distance(self, p1, p2):
+		x = p1[0] - p2[0]
+		y = p1[1] - p2[1]
+		hypotenuse = (x**2 + y**2)**.5   # a^2 = b^2 + c^2
+		return hypotenuse
 
 	def opponent_move(self, player, board):
 		horizontal = 0
@@ -188,36 +201,3 @@ class Ai:
 				p.undo_move()
 		return best
 
-
-	# Return the value that represents the shortest distance
-	# from player_y's king to the closest corner
-	def mini_value(self):
-		y_king_coords = (self.board.player_y.pieces['K'].row,
-						 self.board.player_y.pieces['K'].col)
-
-		corner_distance = min(min(self.distance(y_king_coords, (1, 1)),
-								  self.distance(y_king_coords, (1, 8))),
-							  min(self.distance(y_king_coords, (8, 1)),
-								  self.distance(y_king_coords, (8, 8))))
-
-		return corner_distance
-
-	# Return the value that represents the longest distance
-	# from player_y's king to the closest corner
-	def max_value(self):
-		y_king_coords = (self.board.player_y.pieces['K'].row,
-						 self.board.player_y.pieces['K'].col)
-
-		corner_distance = max(max(self.distance(y_king_coords, (1, 1)),
-								  self.distance(y_king_coords, (1, 8))),
-							  max(self.distance(y_king_coords, (8, 1)),
-								  self.distance(y_king_coords, (8, 8))))
-
-		return corner_distance
-
-	# Return distance between two points
-	def distance(self, p1, p2):
-		x = p1[0] - p2[0]
-		y = p1[1] - p2[1]
-		hypotenuse = (x**2 + y**2)**.5   # a^2 = b^2 + c^2
-		return hypotenuse
