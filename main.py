@@ -113,10 +113,10 @@ def test2():
 
 	player_x = Player('x')
 	player_y = Player('y')
-	
+
 	king_x = Piece(player_x, 'K', 3, 1)
-	rook_x = Piece(player_x, 'R', 3, 8)
-	king_y = Piece(player_y, 'K', 7, 8)
+	rook_x = Piece(player_x, 'R', 8, 5)
+	king_y = Piece(player_y, 'K', 6, 7)
 
 	player_x.add_piece(rook_x)
 	player_x.add_piece(king_x)
@@ -125,10 +125,17 @@ def test2():
 	b = Board(player_x, player_y)
 	b.display()
 
-	ai = Ai(b, 4)
-	ai.create_tree(player_x)
+	ai = Ai(3)
+	for i in range(35):
+		ai.move(b, player_x)
+		b.display()
+		ai.move(b, player_y)
+		b.display()
+
+	# ai = Ai(b, 4)
+	# ai.create_tree(player_x)
 	# ai.display_tree(ai.root_node)
-	print(ai.number_of_states)
+	# print(ai.number_of_states)
 
 if __name__ == '__main__':
 	try:
