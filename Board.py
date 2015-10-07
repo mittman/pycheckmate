@@ -57,10 +57,10 @@ class Board:
 		if ('R' in self.player_x.pieces and
 			new_row == self.player_x.pieces['R'].row and \
 			new_col == self.player_x.pieces['R'].col):
-			del self.player_x.pieces['R']
-			File.prompt("PlayerX rook captured")
-			File.prompt("Stalemate")
-			exit(0)
+				del self.player_x.pieces['R']
+				File.prompt("PlayerX rook captured")
+				File.prompt("Stalemate")
+				exit(0)
 
 		self.state[piece.row][piece.col] = '*'
 		piece.prev_coords = (piece.row, piece.col)
