@@ -204,14 +204,11 @@ class Board:
 		
 	# Function to just serve as a key to this current state
 	def new_positions(self):
-		# Terrible way of doing this, but whatever
 		key = ''
-		if 'K' not in self.player_x.pieces:
-			return key
-		if 'R' in self.player_x.pieces:
-			key = 'xR' + str(self.player_x.pieces['R'].row) + str(self.player_x.pieces['R'].col)
-		key += 'xK' + str(self.player_x.pieces['K'].row) + str(self.player_x.pieces['K'].col)
-		key += 'yK' + str(self.player_y.pieces['K'].row) + str(self.player_y.pieces['K'].col)
+		for p in self.player_x.pieces.values():
+			key += p.player + p.type + str(p.row) + str(p.col)
+		for p in self.player_y.pieces.values():
+			key += p.player + p.type + str(p.row) + str(p.col)
 		return key
 
 	def undo_move(self, piece):
