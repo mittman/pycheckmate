@@ -29,8 +29,11 @@ class Ai:
 			print('GAME OVER')
 		else:
 			self.root_node = State(board)
-			self.create_state_tree(board, player, 0, self.root_node, False)
-			
+			if player.id == 'x':
+				self.create_state_tree(board, player, 0, self.root_node, True)
+			else:
+				self.create_state_tree(board, player, 0, self.root_node, False)
+				
 		best_state = self.root_node.children_nodes[0]
 		for s in self.root_node.children_nodes:
 			if player.id == 'x':
