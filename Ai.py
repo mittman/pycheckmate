@@ -1,6 +1,6 @@
-from File import File
 import re
 import copy
+from File import File
 
 INFINITY = 9999
 
@@ -26,13 +26,13 @@ class Ai:
 	
 	def move(self, board, player):
 		if not board.find_legal_moves(board.player_y.pieces['K']):
-			print('GAME OVER')
+			File.prompt("GAME OVER")
 		else:
 			self.root_node = State(board)
 			if player.id == 'x':
-				self.create_state_tree(board, player, 0, self.root_node, True)
-			else:
 				self.create_state_tree(board, player, 0, self.root_node, False)
+			else:
+				self.create_state_tree(board, player, 0, self.root_node, True)
 				
 		best_state = self.root_node.children_nodes[0]
 		for s in self.root_node.children_nodes:
@@ -48,8 +48,8 @@ class Ai:
 	# This create tree is just for test cases. Main one below is called in move()
 	def create_tree(self, board, player):
 		self.root_node = State(board)
-		self.known_states.add(self.board.piece_positions)
-		self.create_state_tree(self.board, player, 0, self.root_node, True)
+		self.known_states.add(board.piece_positions)
+		self.create_state_tree(board, player, 0, self.root_node, True)
 
 	# Create state tree up to max play. Pretty much completely indecipherable now
 	def create_state_tree(self, board, player, depth, parent, is_min):

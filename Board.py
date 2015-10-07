@@ -60,7 +60,7 @@ class Board:
 				del self.player_x.pieces['R']
 				File.prompt("PlayerX rook captured")
 				File.prompt("Stalemate")
-				exit(0)
+				#exit(0)
 
 		self.state[piece.row][piece.col] = '*'
 		piece.prev_coords = (piece.row, piece.col)
