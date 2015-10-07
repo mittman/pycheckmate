@@ -33,29 +33,47 @@ class Ai:
 	def create_state_tree(self, board, player, depth, parent):
 		if depth != self.max_ply:   # base case
 			for p in player.pieces.values():
-				for move in board.find_legal_moves(p):
+				moves = board.find_legal_moves(p)
+				if not moves:   # empty list
+					parent.value = 'LEAF NODE'
+				#     self.assign_value(board, player, depth)
+				for move in moves:
 					# create a new board as a potential new state
 					test_board = copy.deepcopy(board)
 					hero, villain = test_board.identify_players(player)
 					test_piece = hero.pieces[p.type]
 					test_board.make_move(hero, test_piece, move)
-					if test_board.piece_positions not in self.known_states:
-						self.known_states.add(board.piece_positions)
-						# create new child state:
-						new_state = State(test_board, test_piece, move, depth)
-						##### Test:
-						self.number_of_states += 1
-						#print('PLY LEVEL ' + str(new_state.ply_level))
-						#new_state.board.display()
-						
-						# create state tree for opponent's moves from this child state:
-						self.create_state_tree(test_board, villain, depth + 1, new_state)
-						
-						# add this new state to its parent
-						parent.children_nodes.append(new_state)
-				
+					# create new child state:
+					new_state = State(test_board, test_piece, move, depth)
+					self.number_of_states += 1
+
+					# create state tree for opponent's moves from this child state:
+					self.create_state_tree(test_board, villain, depth + 1, new_state)
+
+					# add this new state to its parent
+					parent.children_nodes.append(new_state)
+
 					# undo move from parent board:
 					# board.undo_move(p)
+		else:   # Last ply-level state in tree
+			parent.value = 'LEAF NODE'
+		#     self.assign_value(board, player, depth)
+
+	def bfs(self):
+		opened = [self.root_node]
+		closed = []
+		while opened:
+			node = opened[0]
+			opened.pop(0)
+			## if X is a gola then return SUCCESS
+			## else:
+			children = [x for x in node.children_nodes]
+			closed.append(node)
+			for c in children:
+				opened.append(c)
+				print('PLY LEVEL ' + str(c.ply_level))
+				c.board.display()
+				print(c.value)
 
 
 	def display_tree(self, state):
