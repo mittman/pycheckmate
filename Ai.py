@@ -1,11 +1,8 @@
-from Board import Board
 from File import File
-from Player import Player
-from Piece import Piece
 import re
 import copy
 
-INFINITY = 9999999
+INFINITY = 999
 
 class State:
 	def __init__(self, state_board, moved_piece=None, move_coords=None, depth=0):
@@ -14,18 +11,37 @@ class State:
 		self.new_coords = move_coords
 		self.children_nodes = []
 		self.ply_level = depth + 1
+		self.value = None
 
 
 class Ai:
-	def __init__(self, _board, ply_level=3):
-		self.board = _board
+	def __init__(self, ply_level=3):
 		self.max_ply = ply_level
 		self.known_states = set()
-		self.root_node = State(self.board)
+		self.root_node = None
 		
 		self.number_of_states = 0
 	
-	def create_tree(self, player):
+	def move(self, board, player):
+		if not board.find_legal_moves(board.player_y.pieces['K']):
+			print('GAME OVER')
+		else:
+			self.root_node = State(board)
+			self.create_state_tree(board, player, 0, self.root_node)
+			best_state = self.root_node.children_nodes[0]
+			for s in self.root_node.children_nodes:
+				if player.id == 'x':
+					if s.value < best_state.value:
+						best_state = s
+				else:
+					if s.value > best_state.value:
+						best_state = s
+			piece = player.pieces[best_state.piece_to_move.type]
+			board.make_move(player, piece, best_state.new_coords)
+	
+	# This create tree is just for test cases. Main one below is called in move()
+	def create_tree(self, board, player):
+		self.root_node = State(board)
 		self.known_states.add(self.board.piece_positions)
 		self.create_state_tree(self.board, player, 0, self.root_node)
 
@@ -34,8 +50,12 @@ class Ai:
 		if depth != self.max_ply:   # base case
 			for p in player.pieces.values():
 				moves = board.find_legal_moves(p)
-				if not moves:   # empty list
-					self.assign_value(board, player, depth)
+				if not moves:   # empty list - can only happen for player y
+					# if currently not under check--tie situation, return INFINITY + depth
+					if board.tile_is_safe(board.player_x, p.row, p.col):
+						parent.value = self.assign_value(board, board.player_y, depth)
+					else:   # else currently under check--checkmate, return -INFINITY + depth
+						parent.value = self.assign_value(board, board.player_x, depth)
 				for move in moves:
 					# create a new board as a potential new state
 					test_board = copy.deepcopy(board)
@@ -48,6 +68,15 @@ class Ai:
 
 					# create state tree for opponent's moves from this child state:
 					self.create_state_tree(test_board, villain, depth + 1, new_state)
+						
+					# MINIMAX happening here:
+					if new_state.value is not None:
+						if hero.id == 'x':
+							if parent.value is None or new_state.value < parent.value:
+								parent.value = new_state.value
+						else:
+							if parent.value is None or new_state.value > parent.value:
+								parent.value = new_state.value
 
 					# add this new state to its parent
 					parent.children_nodes.append(new_state)
@@ -55,16 +84,15 @@ class Ai:
 					# undo move from parent board:
 					# board.undo_move(p)
 		else:   # Last ply-level state in tree
-			self.assign_value(board, player, depth)
-
+			hero, villain = board.identify_players(player)
+			parent.value = self.assign_value(board, villain, depth)
+			
 	def bfs(self):
 		opened = [self.root_node]
 		closed = []
 		while opened:
 			node = opened[0]
 			opened.pop(0)
-			## if X is a gola then return SUCCESS
-			## else:
 			children = [x for x in node.children_nodes]
 			closed.append(node)
 			for c in children:
@@ -78,7 +106,7 @@ class Ai:
 		if not board.find_legal_moves(board.player_y.pieces['K']):  # no moves left for playerY
 			return (depth + -INFINITY) if player.id == 'x' else (depth + INFINITY)
 		else:
-			return self.value(board)
+			return depth + self.value(board)
 
 	# Return the value that represents the shortest distance
 	# from player_y's king to the closest corner
@@ -163,41 +191,4 @@ class Ai:
 		board.move_log = piece.player + piece.type + ' to ' + \
 						str(horizontal) + ',' + str(vertical)
 
-
-	def move(self, player):
-		if player.id == 'x':
-			move = self.best_move_x(player)
-		else:
-			move = self.best_move_y(player)
-		if move is None:
-			### GAME OVER, either tie or mate ###
-			File.prompt('game over, do something')
-
-		
-
-	def best_move_x(self, plyr):
-		mini = INFINITY
-		best = None
-		for p in plyr.pieces:
-			for move in self.board.find_legal_moves(p):
-				self.board.make_move(p, move)
-				move_value = self.mini_value()
-				if move_value < mini:
-					mini = move_value
-					best = move
-				p.undo_move()
-		return best
-
-	def best_move_y(self, plyr):
-		maxi = -INFINITY
-		best = None
-		for p in plyr.pieces:
-			for move in self.board.find_legal_moves(p):
-				self.board.make_move(p, move)
-				move_value = self.max_value()
-				if move_value > maxi:
-					maxi = move_value
-					best = move
-				p.undo_move()
-		return best
 
