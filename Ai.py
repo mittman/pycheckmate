@@ -2,16 +2,18 @@ from File import File
 import re
 import copy
 
-INFINITY = 999
+INFINITY = 9999
 
 class State:
-	def __init__(self, state_board, moved_piece=None, move_coords=None, depth=0):
+	def __init__(self, state_board, moved_piece=None, move_coords=None, depth=0, parent=None):
 		self.board = state_board
 		self.piece_to_move = moved_piece
 		self.new_coords = move_coords
 		self.children_nodes = []
 		self.ply_level = depth + 1
 		self.value = None
+		self.next_parent = parent
+		self.prune = False
 
 
 class Ai:
@@ -28,25 +30,26 @@ class Ai:
 		else:
 			self.root_node = State(board)
 			self.create_state_tree(board, player, 0, self.root_node)
-			best_state = self.root_node.children_nodes[0]
-			for s in self.root_node.children_nodes:
-				if player.id == 'x':
-					if s.value < best_state.value:
-						best_state = s
-				else:
-					if s.value > best_state.value:
-						best_state = s
-			piece = player.pieces[best_state.piece_to_move.type]
-			board.make_move(player, piece, best_state.new_coords)
+			
+		best_state = self.root_node.children_nodes[0]
+		for s in self.root_node.children_nodes:
+			if player.id == 'x':
+				if s.value < best_state.value:
+					best_state = s
+			else:
+				if s.value > best_state.value:
+					best_state = s
+		piece = player.pieces[best_state.piece_to_move.type]
+		board.make_move(player, piece, best_state.new_coords)
 	
 	# This create tree is just for test cases. Main one below is called in move()
 	def create_tree(self, board, player):
 		self.root_node = State(board)
 		self.known_states.add(self.board.piece_positions)
-		self.create_state_tree(self.board, player, 0, self.root_node)
+		self.create_state_tree(self.board, player, 0, self.root_node, True)
 
-	# Recursively create state tree to max ply
-	def create_state_tree(self, board, player, depth, parent):
+	# Create state tree up to max play. Pretty much completely indecipherable now
+	def create_state_tree(self, board, player, depth, parent, is_min):
 		if depth != self.max_ply:   # base case
 			for p in player.pieces.values():
 				moves = board.find_legal_moves(p)
@@ -54,38 +57,54 @@ class Ai:
 					# if currently not under check--tie situation, return INFINITY + depth
 					if board.tile_is_safe(board.player_x, p.row, p.col):
 						parent.value = self.assign_value(board, board.player_y, depth)
-					else:   # else currently under check--checkmate, return -INFINITY + depth
+					else:   # else currently in checkmate, return -INFINITY + depth
 						parent.value = self.assign_value(board, board.player_x, depth)
 				for move in moves:
-					# create a new board as a potential new state
-					test_board = copy.deepcopy(board)
-					hero, villain = test_board.identify_players(player)
-					test_piece = hero.pieces[p.type]
-					test_board.make_move(hero, test_piece, move)
-					# create new child state:
-					new_state = State(test_board, test_piece, move, depth)
-					self.number_of_states += 1
+					if not parent.prune:
+						# create a new board as a potential new state
+						test_board = copy.deepcopy(board)
+						hero, villain = test_board.identify_players(player)
+						test_piece = hero.pieces[p.type]
+						test_board.make_move(hero, test_piece, move)
+						# create new child state:
+						new_state = State(test_board, test_piece, move, depth, parent)
+						self.number_of_states += 1
 
-					# create state tree for opponent's moves from this child state:
-					self.create_state_tree(test_board, villain, depth + 1, new_state)
-						
-					# MINIMAX happening here:
-					if new_state.value is not None:
-						if hero.id == 'x':
-							if parent.value is None or new_state.value < parent.value:
-								parent.value = new_state.value
-						else:
-							if parent.value is None or new_state.value > parent.value:
-								parent.value = new_state.value
+						# create state tree for opponent's moves from this child state:
+						self.create_state_tree(test_board, villain, depth + 1, new_state, not is_min)
 
-					# add this new state to its parent
-					parent.children_nodes.append(new_state)
+						####### MINIMAX HAPPENS HERE ########
+						if new_state.value is not None:
+							if is_min:
+								if parent.value is None or new_state.value < parent.value:
+									parent.value = new_state.value
+							else:
+								if parent.value is None or new_state.value > parent.value:
+									parent.value = new_state.value
+						####### ALPHA BETA PRUNING ########
+						if (parent.next_parent is not None and
+							parent.value is not None and parent.next_parent.value is not None):
+								ancestor_vals = self.ancestor_values(parent)
+								if is_min:  # parent = is_max
+									for val in ancestor_vals:
+										if parent.value >= val:
+											parent.prune = True
+								else:       # parent = is_min
+									for val in ancestor_vals:
+										if parent.value <= val:
+											parent.prune = True
 
-					# undo move from parent board:
-					# board.undo_move(p)
-		else:   # Last ply-level state in tree
+						# add this new state to its parent
+						parent.children_nodes.append(new_state)
+		else:   # Leaf node, assign value
 			hero, villain = board.identify_players(player)
 			parent.value = self.assign_value(board, villain, depth)
+
+	def ancestor_values(self, state):
+		if state.next_parent is None or state.next_parent.value is None:
+			return []
+		else:
+			return [state.next_parent.value] + self.ancestor_values(state.next_parent)
 			
 	def bfs(self):
 		opened = [self.root_node]
