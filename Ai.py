@@ -38,7 +38,10 @@ class Ai:
 		best_state = self.root_node.children_nodes[0]
 		for s in self.root_node.children_nodes:
 			if player.id == 'x':
-				if s.value < best_state.value:
+				if (not board.legal_move(board.player_y.pieces['K'],
+				                         board.player_x.pieces['R'].row,
+				                         board.player_x.pieces['R'].col) ) and \
+						s.value < best_state.value:
 					best_state = s
 			else:
 				if s.value > best_state.value:
