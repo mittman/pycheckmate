@@ -67,6 +67,11 @@ class Ai:
 						parent.value = self.assign_value(board, board.player_y, depth)
 					else:   # else currently in checkmate, return -INFINITY + depth
 						parent.value = self.assign_value(board, board.player_x, depth)
+						File.print('')
+						File.prompt("No legal moves")
+						board.display()
+						File.prompt("Game over")
+						exit(1)
 				for move in moves:
 					if not parent.prune:
 						# create a new board as a potential new state
@@ -158,6 +163,8 @@ class Ai:
 	def opponent_move(self, player, board):
 		horizontal = 0
 		vertical = 0
+		piece = player.pieces['K']
+
 		if player.id == 'x':
 			File.prompt("Move which PlayerX piece?")
 			File.print("1) Rook")
@@ -177,8 +184,6 @@ class Ai:
 			else:
 				File.error("Try again")
 				self.opponent_move(player, board)
-		else:
-			piece = player.pieces['K']
 
 		legal_moves = board.find_legal_moves(piece)
 
