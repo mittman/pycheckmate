@@ -157,7 +157,7 @@ class Board:
 
 		### if len(legal_moves) == 0: *CHECKMATE OR TIE* ###
 		if len(legal_moves) == 0:
-			File.print("game over")
+			File.prompt("game over")
 			exit(0)
 		if len(legal_moves) == 1:
 			new_destination = legal_moves[0]
