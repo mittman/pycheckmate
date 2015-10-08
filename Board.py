@@ -49,13 +49,13 @@ class Board:
 
 		self.move_log = piece.player + piece.type + ' to ' + str(new_row) + ',' + str(new_col)
 
-	def make_move(self, player, piece, new_coords):
+	def make_move(self, player, piece, new_coords, testing=False):
 		new_row = new_coords[0]
 		new_col = new_coords[1]
 		# If playerY eats playerX's rook:
 		if ('R' in self.player_x.pieces and
 			new_row == self.player_x.pieces['R'].row and \
-			new_col == self.player_x.pieces['R'].col):
+			new_col == self.player_x.pieces['R'].col and not testing):
 				del self.player_x.pieces['R']
 				File.prompt("PlayerX rook captured")
 				File.prompt("Stalemate")
@@ -69,6 +69,7 @@ class Board:
 		self.state[piece.row][piece.col] = piece.player + piece.type
 		self.piece_positions = self.new_positions()
 		player.turn += 1
+		self.move_log = piece.player + piece.type + ' to ' + str(new_row) + ',' + str(new_col)
 
 	def tile_is_safe(self, enemy, tile_row, tile_col):
 		# Make new tile temporarily empty:

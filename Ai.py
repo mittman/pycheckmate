@@ -27,6 +27,7 @@ class Ai:
 	def move(self, board, player):
 		if not board.find_legal_moves(board.player_y.pieces['K']):
 			File.prompt("GAME OVER")
+			exit(0)
 		else:
 			self.root_node = State(board)
 			if player.id == 'x':
@@ -48,7 +49,6 @@ class Ai:
 		File.print('\n')
 		File.prompt("Best move " + player.id + piece.type + " to " + str(moveH) + "," + str(moveV))
 		board.make_move(player, piece, best_state.new_coords)
-		#return piece.type, best_state.new_coords
 
 	# This create tree is just for test cases. Main one below is called in move()
 	def create_tree(self, board, player):
@@ -73,7 +73,7 @@ class Ai:
 						test_board = copy.deepcopy(board)
 						hero, villain = test_board.identify_players(player)
 						test_piece = hero.pieces[p.type]
-						test_board.make_move(hero, test_piece, move)
+						test_board.make_move(hero, test_piece, move, True)
 						# create new child state:
 						new_state = State(test_board, test_piece, move, depth, parent)
 						self.number_of_states += 1

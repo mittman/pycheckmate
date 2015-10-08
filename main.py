@@ -17,7 +17,7 @@ def interactive():
 		player_x = Player('x')
 		player_y = Player('y')
 		b = Board(player_x, player_y)
-		ai = Ai(1)	#declared AI here for now -Brendon
+		ai = Ai(6)	#declared AI here for now -Brendon
 		remain = [ 'PlayerX King', 'PlayerX Rook', 'PlayerY King' ]
 		g.ask_piece(b, player_x, player_y, remain)
 		b.display()
@@ -38,11 +38,9 @@ def interactive():
 				File.debug(ai.value(b))
 				File.debug(ai.number_of_states)
 				ai.opponent_move(player_y, b)
-				# b.ai_move(player_y)
 				b.display()
 		else:
 			for i in range(0, end):
-				# b.ai_move(player_x)
 				ai.opponent_move(player_x, b)
 				b.display()
 				#b.ai_move(player_y)
@@ -50,12 +48,6 @@ def interactive():
 				b.display()
 				File.debug(ai.value(b))
 				File.debug(ai.number_of_states)
-		# AI random moves test:
-		# for i in range(0, end):
-		# 	b.ai_move(player_x)
-		# 	b.display()
-		# 	b.ai_move(player_y)
-		# 	b.display()
 	else:
 		player_x = Player('x')
 		player_y = Player('y')

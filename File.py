@@ -1,6 +1,6 @@
 import os, sys
 
-debug = True
+debug = False
 logfile = True
 stdout = True
 
