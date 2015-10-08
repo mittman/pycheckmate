@@ -79,8 +79,9 @@ class Ai:
 						new_state = State(test_board, test_piece, move, depth, parent)
 						self.number_of_states += 1
 
-						if self.assign_value(test_board, test_board.player_y, depth) >= INFINITY:
-							new_state.value = self.assign_value(test_board, test_board.player_y, depth)
+						if 'R' not in board.player_x.pieces:
+							new_state.prune = True
+							new_state.value = INFINITY + depth
 
 						# create state tree for opponent's moves from this child state:
 						self.create_state_tree(test_board, villain, depth + 1, new_state, not is_min)
@@ -88,10 +89,10 @@ class Ai:
 						####### MINIMAX HAPPENS HERE ########
 						if new_state.value is not None:
 							if is_min:
-								if parent.value is None or new_state.value < parent.value:
+								if parent.value is None or new_state.value > parent.value:
 									parent.value = new_state.value
 							else:
-								if parent.value is None or new_state.value > parent.value:
+								if parent.value is None or new_state.value < parent.value:
 									parent.value = new_state.value
 						####### ALPHA BETA PRUNING ########
 						if (parent.next_parent is not None and
@@ -110,8 +111,11 @@ class Ai:
 						parent.children_nodes.append(new_state)
 		else:   # Leaf node, assign value
 			hero, villain = board.identify_players(player)
-			parent.value = self.assign_value(board, villain, depth)
-
+			if 'R' not in board.player_x.pieces:
+				parent.value = INFINITY + depth
+			else:
+				parent.value = self.assign_value(board, villain, depth)
+				
 	def ancestor_values(self, state):
 		if state.next_parent is None or state.next_parent.value is None:
 			return []
@@ -146,13 +150,17 @@ class Ai:
 	def value(self, board):
 		y_king_coords = (board.player_y.pieces['K'].row,
 						 board.player_y.pieces['K'].col)
+		k_king_coords = (board.player_x.pieces['K'].row,
+		                 board.player_x.pieces['K'].col)
 
 		corner_distance = min(min(self.distance(y_king_coords, (1, 1)),
 								  self.distance(y_king_coords, (1, 8))),
 							  min(self.distance(y_king_coords, (8, 1)),
 								  self.distance(y_king_coords, (8, 8))))
 
-		return corner_distance
+		kings_distance = self.distance(y_king_coords, k_king_coords)
+
+		return corner_distance + kings_distance
 	
 	# Return distance between two points
 	def distance(self, p1, p2):
