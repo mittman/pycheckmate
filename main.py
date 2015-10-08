@@ -17,9 +17,10 @@ def interactive():
 		player_x = Player('x')
 		player_y = Player('y')
 		b = Board(player_x, player_y)
-		ai = Ai(b)	#declared AI here for now -Brendon
+		ai = Ai(1)	#declared AI here for now -Brendon
 		remain = [ 'PlayerX King', 'PlayerX Rook', 'PlayerY King' ]
 		g.ask_piece(b, player_x, player_y, remain)
+		b.display()
 
 		localPlayer = input("Who am I PlayerX or PlayerY (x/y): ")
 		if re.match(r"[Xx]", localPlayer):
@@ -31,8 +32,11 @@ def interactive():
 		# PlayerY is opponents moves inputted by us
 		if(localPlayer == 'x'):
 			for i in range(0, end):
-				b.ai_move(player_x)
+				#b.ai_move(player_x)
+				ai.move(b, player_x)
 				b.display()
+				File.debug(ai.value(b))
+				File.debug(ai.number_of_states)
 				ai.opponent_move(player_y, b)
 				# b.ai_move(player_y)
 				b.display()
@@ -41,8 +45,11 @@ def interactive():
 				# b.ai_move(player_x)
 				ai.opponent_move(player_x, b)
 				b.display()
-				b.ai_move(player_y)
+				#b.ai_move(player_y)
+				ai.move(b, player_y)
 				b.display()
+				File.debug(ai.value(b))
+				File.debug(ai.number_of_states)
 		# AI random moves test:
 		# for i in range(0, end):
 		# 	b.ai_move(player_x)
@@ -122,26 +129,34 @@ def test2():
 	b = Board(player_x, player_y)
 	b.display()
 
-	ai = Ai(6)
-	for i in range(35):
-		ai.move(b, player_x)
-		b.display()
-		ai.move(b, player_y)
-		b.display()
-		row, col = input('Row Col:').split()
-		b.player_move(player_y, king_y, row, col)
-		b.display()
-	ai.create_tree(b, player_x)
-	ai.create_tree(b, player_y)
+	ai = Ai(1)
+	#for i in range(35):
+	#	ai.move(b, player_x)
+	#	b.display()
+	#	ai.move(b, player_y)
+	#	b.display()
+	#	row, col = input('Row Col:').split()
+	#	b.player_move(player_y, king_y, row, col)
+	#	b.display()
+
+	#ai.move(b, player_x)
+	#b.display()
+	#b.player_move(player_y, 'K', 5, 5)
+
+	#ai.create_tree(b, player_x)
+	ai.move(b, player_x)
+	b.display()
+	#ai.create_tree(b, player_y)
 	#ai.display_tree(ai.root_node)
-	ai.bfs()
+	print(ai.value(b))
+	#ai.bfs()
 	print(ai.number_of_states)
 
 if __name__ == '__main__':
 	try:
-		test2()
+		#test2()
 		#test_case()
-		#interactive()
+		interactive()
 	except KeyboardInterrupt:
 		print("\nExiting...")
 		File.close()

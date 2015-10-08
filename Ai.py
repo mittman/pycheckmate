@@ -43,8 +43,13 @@ class Ai:
 				if s.value > best_state.value:
 					best_state = s
 		piece = player.pieces[best_state.piece_to_move.type]
+		moveH = best_state.new_coords[0]
+		moveV = best_state.new_coords[1]
+		File.print('\n')
+		File.prompt("Best move " + player.id + piece.type + " to " + str(moveH) + "," + str(moveV))
 		board.make_move(player, piece, best_state.new_coords)
-	
+		#return piece.type, best_state.new_coords
+
 	# This create tree is just for test cases. Main one below is called in move()
 	def create_tree(self, board, player):
 		self.root_node = State(board)

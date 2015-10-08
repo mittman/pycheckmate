@@ -93,7 +93,7 @@ class Game:
 			exit(3)
 
 		File.prompt("OK " + piece_name + " to " + str(moveH) + "-" + str(moveV))
-		board.display()
+		#board.display()
 
 
 	def split_entry(self, entry):

@@ -1,6 +1,6 @@
 import os, sys
 
-debug = False
+debug = True
 logfile = True
 stdout = True
 
@@ -65,7 +65,7 @@ class File:
 
 	def debug(text):
 		if debug:
-			print("--> " + text)
+			print("--> " + str(text))
 
 	def error(text):
 		print("\033[1;31m==> ERROR:\033[0m \033[1m" + text + "\033[0m")

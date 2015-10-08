@@ -30,7 +30,6 @@ class Board:
 			self.state[0][3] = str(self.player_x.turn)
 		File.print('')
 		File.print('\n'.join(''.join(['{:3}'.format(item) for item in row]) for row in self.state))
-		File.print(self.move_log)
 
 	def player_move(self, player, piece_id, new_row, new_col):
 		hero, opponent = self.identify_players(player)
@@ -60,7 +59,7 @@ class Board:
 				del self.player_x.pieces['R']
 				File.prompt("PlayerX rook captured")
 				File.prompt("Stalemate")
-				#exit(0)
+				exit(0)
 
 		self.state[piece.row][piece.col] = '*'
 		piece.prev_coords = (piece.row, piece.col)
