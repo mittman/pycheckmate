@@ -22,7 +22,8 @@ def interactive():
 		g.ask_piece(b, player_x, player_y, remain)
 		b.display()
 
-		localPlayer = input("Who am I PlayerX or PlayerY (x/y): ")
+		File.prompt("Who am I, PlayerX or PlayerY?")
+		localPlayer = input("Player [x/y]: ")
 		if re.match(r"[Xx]", localPlayer):
 			localPlayer = 'x'
 		else:

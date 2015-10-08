@@ -79,6 +79,9 @@ class Ai:
 						new_state = State(test_board, test_piece, move, depth, parent)
 						self.number_of_states += 1
 
+						if self.assign_value(test_board, test_board.player_y, depth) >= INFINITY:
+							new_state.value = self.assign_value(test_board, test_board.player_y, depth)
+
 						# create state tree for opponent's moves from this child state:
 						self.create_state_tree(test_board, villain, depth + 1, new_state, not is_min)
 
