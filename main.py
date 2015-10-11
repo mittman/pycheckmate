@@ -17,7 +17,7 @@ def interactive():
 		player_x = Player('x')
 		player_y = Player('y')
 		b = Board(player_x, player_y)
-		ai = Ai(6)	#declared AI here for now -Brendon
+		ai = Ai(4)	#declared AI here for now -Brendon
 		remain = [ 'PlayerX King', 'PlayerX Rook', 'PlayerY King' ]
 		g.ask_piece(b, player_x, player_y, remain)
 		b.display()

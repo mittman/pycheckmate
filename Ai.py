@@ -32,21 +32,20 @@ class Ai:
 		else:
 			self.root_node = State(board)
 			if player.id == 'x':
-				self.create_state_tree(board, player, 0, self.root_node, False)
-			else:
 				self.create_state_tree(board, player, 0, self.root_node, True)
+			else:
+				self.create_state_tree(board, player, 0, self.root_node, False)
 				
 			best_state = self.root_node.children_nodes[0]
-			for s in self.root_node.children_nodes:
-				if player.id == 'x':
-					if (not board.legal_move(board.player_y.pieces['K'],
-					                         board.player_x.pieces['R'].row,
-					                         board.player_x.pieces['R'].col) ) and \
-							s.value < best_state.value:
+			if player.id == 'x':
+				for s in self.root_node.children_nodes:
+					if s.value < best_state.value:
 						best_state = s
-				else:
+			else:
+				for s in self.root_node.children_nodes:
 					if s.value > best_state.value:
 						best_state = s
+
 			piece = player.pieces[best_state.piece_to_move.type]
 			moveH = best_state.new_coords[0]
 			moveV = best_state.new_coords[1]
@@ -85,8 +84,8 @@ class Ai:
 						new_state = State(test_board, test_piece, move, depth, parent)
 						self.number_of_states += 1
 
-						if 'R' not in board.player_x.pieces:
-							parent.prune = True
+						if 'R' not in test_board.player_x.pieces:
+							parent.value = INFINITY + depth
 							new_state.value = INFINITY + depth
 						else:
 							# create state tree for opponent's moves from this child state:
@@ -95,10 +94,10 @@ class Ai:
 						####### MINIMAX HAPPENS HERE ########
 						if new_state.value is not None:
 							if is_min:
-								if parent.value is None or new_state.value > parent.value:
+								if parent.value is None or new_state.value < parent.value:
 									parent.value = new_state.value
 							else:
-								if parent.value is None or new_state.value < parent.value:
+								if parent.value is None or new_state.value > parent.value:
 									parent.value = new_state.value
 						####### ALPHA BETA PRUNING ########
 						if (parent.next_parent is not None and
@@ -106,11 +105,11 @@ class Ai:
 								ancestor_vals = self.ancestor_values(parent)
 								if is_min:  # parent = is_max
 									for val in ancestor_vals:
-										if parent.value >= val:
+										if new_state.value <= val:
 											parent.prune = True
 								else:       # parent = is_min
 									for val in ancestor_vals:
-										if parent.value <= val:
+										if new_state.value >= val:
 											parent.prune = True
 
 						# add this new state to its parent
@@ -150,17 +149,21 @@ class Ai:
 	def value(self, board):
 		y_king_coords = (board.player_y.pieces['K'].row,
 						 board.player_y.pieces['K'].col)
-		k_king_coords = (board.player_x.pieces['K'].row,
+		x_king_coords = (board.player_x.pieces['K'].row,
 		                 board.player_x.pieces['K'].col)
+		x_rook_coords = (board.player_x.pieces['R'].row,
+		                 board.player_x.pieces['R'].col)
 
 		corner_distance = min(min(self.distance(y_king_coords, (1, 1)),
 								  self.distance(y_king_coords, (1, 8))),
 							  min(self.distance(y_king_coords, (8, 1)),
 								  self.distance(y_king_coords, (8, 8))))
 
-		kings_distance = self.distance(y_king_coords, k_king_coords)
+		kings_distance = self.distance(y_king_coords, x_king_coords)
 
-		return corner_distance + kings_distance
+		rook_distance = self.distance(y_king_coords, x_rook_coords)
+
+		return corner_distance + kings_distance # - (rook_distance * 0.75)
 	
 	# Return distance between two points
 	def distance(self, p1, p2):
