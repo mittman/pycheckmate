@@ -39,11 +39,11 @@ class Ai:
 			best_state = self.root_node.children_nodes[0]
 			if player.id == 'x':
 				for s in self.root_node.children_nodes:
-					if s.value < best_state.value:
+					if s.value <= best_state.value:
 						best_state = s
 			else:
 				for s in self.root_node.children_nodes:
-					if s.value > best_state.value:
+					if s.value >= best_state.value:
 						best_state = s
 
 			piece = player.pieces[best_state.piece_to_move.type]
@@ -74,7 +74,9 @@ class Ai:
 						parent.value = self.assign_value(board, board.player_x, depth)
 
 				for move in moves:
-					if not parent.prune:
+					if not parent.prune and not \
+						self.dumb_move(board.player_y.pieces['K'], p, move) and not \
+						(player.id == 'x' and self.redundant_move(p, move)):
 						# create a new board as a potential new state
 						test_board = copy.deepcopy(board)
 						hero, villain = test_board.identify_players(player)
@@ -100,7 +102,7 @@ class Ai:
 								if parent.value is None or new_state.value > parent.value:
 									parent.value = new_state.value
 						####### ALPHA BETA PRUNING ########
-						if (parent.next_parent is not None and
+						if (parent.next_parent is not None and new_state.value is not None and
 							parent.value is not None and parent.next_parent.value is not None):
 								ancestor_vals = self.ancestor_values(parent)
 								if is_min:  # parent = is_max
@@ -114,13 +116,41 @@ class Ai:
 
 						# add this new state to its parent
 						parent.children_nodes.append(new_state)
+
+	# Function that returns True for any useless moves the x_player's AI may think about making
+	def dumb_move(self, y_king, moved_piece, new_coords):
+		if moved_piece.type == 'R':
+			# if rook is too close to Y's king, then dumb move:
+			if (self.distance(new_coords, (y_king.row, y_king.col)) < 2.24 and not
+				(y_king.row == 8 or y_king.col == 8 or y_king.row == 1 or y_king.col == 1)):
+					return True
+			# if rook is on an edge of the board and moves alongside it, dumb move:
+			if moved_piece.row == 8 and new_coords[1] == 8:
+				return True
+			elif moved_piece.col == 8 and new_coords[0] == 8:
+				return True
+			elif moved_piece.row == 1 and new_coords[1] == 1:
+				return True
+			elif moved_piece.col == 1 and new_coords[1] == 1:
+				return True
+		# if X's king staying at the edge of the board:
+		elif moved_piece.player == 'x' and moved_piece.type == 'K':
+			if (new_coords[0] == 8 or new_coords[1] == 8 or
+				new_coords[0] == 1 or new_coords[1] == 1):
+					return True
+		return False
+
+	def redundant_move(self, piece, move):
+		if piece.prev_coords == move:
+			return True
+		return False
 				
 	def ancestor_values(self, state):
 		if state.next_parent is None or state.next_parent.value is None:
 			return []
 		else:
 			return [state.next_parent.value] + self.ancestor_values(state.next_parent)
-			
+
 	def bfs(self):
 		opened = [self.root_node]
 		closed = []
@@ -130,10 +160,11 @@ class Ai:
 			children = [x for x in node.children_nodes]
 			closed.append(node)
 			for c in children:
-				opened.append(c)
-				print('PLY LEVEL ' + str(c.ply_level))
-				c.board.display()
-				print('VALUE: ' + str(c.value))
+				if c.board.piece_positions not in self.known_states:
+					opened.append(c)
+					self.known_states.add(c.board.piece_positions)
+				else:
+					del c
 			
 	# If goal state has been reached, return (+/-)infinity, otherwise return minimax value
 	def assign_value(self, board, player, depth):
@@ -144,26 +175,97 @@ class Ai:
 		else:
 			return depth + self.value(board)
 
-	# Return the value that represents the shortest distance
-	# from player_y's king to the closest corner
+	# # Return the value that represents the shortest distance
+	# # from player_y's king to the closest corner
+	# def value(self, board):
+	# 	y_king_coords = (board.player_y.pieces['K'].row,
+	# 					 board.player_y.pieces['K'].col)
+	# 	x_king_coords = (board.player_x.pieces['K'].row,
+	# 	                 board.player_x.pieces['K'].col)
+	# 	x_rook_coords = (board.player_x.pieces['R'].row,
+	# 	                 board.player_x.pieces['R'].col)
+	#
+	# 	corner_distance = min(min(self.distance(y_king_coords, (1, 1)),
+	# 							  self.distance(y_king_coords, (1, 8))),
+	# 						  min(self.distance(y_king_coords, (8, 1)),
+	# 							  self.distance(y_king_coords, (8, 8))))
+	#
+	# 	kings_distance = self.distance(y_king_coords, x_king_coords)
+	# 	rook_distance = self.distance(y_king_coords, x_rook_coords)
+	#
+	# 	return corner_distance + kings_distance # - (rook_distance * 0.25)
+
+
+	# find the value of all the possible moves y_king can make with infinite turns (minus eating rook)
 	def value(self, board):
+		y_king = board.player_y.pieces['K']
+		x_rook = board.player_x.pieces['R']
+		empty_spaces = 0
+		# Y's king is in check situations:
+		if y_king.row == x_rook.row:
+			if y_king.row < x_rook.row:
+				for i in range(1, 9):
+					for j in range(1, x_rook.col):
+						if board.tile_is_safe(board.player_x, i, j):
+							empty_spaces += 1
+			else:
+				for i in range(1, 9):
+					for j in range(x_rook.col + 1, 9):
+						if board.tile_is_safe(board.player_x, i, j):
+							empty_spaces += 1
+		elif y_king.col == x_rook.col:
+			if y_king.col < x_rook.col:
+				for i in range(1, x_rook.row):
+					for j in range(1, 9):
+						if board.tile_is_safe(board.player_x, i, j):
+							empty_spaces += 1
+			else:
+				for i in range(x_rook.row + 1, 9):
+					for j in range(1, 9):
+						if board.tile_is_safe(board.player_x, i, j):
+							empty_spaces += 1
+		# Quadrants/empty spaces values
+		elif y_king.row < x_rook.row and y_king.col < x_rook.col:
+			for i in range(1, x_rook.row):
+				for j in range(1, x_rook.col):
+					if board.tile_is_safe(board.player_x, i, j):
+						empty_spaces += 1
+		elif y_king.row < x_rook.row and y_king.col > x_rook.col:
+			for i in range(1, x_rook.row):
+				for j in range(x_rook.col + 1, 9):
+					if board.tile_is_safe(board.player_x, i, j):
+						empty_spaces += 1
+		elif y_king.row > x_rook.row and y_king.col < x_rook.col:
+			for i in range(x_rook.row + 1, 9):
+				for j in range(1, x_rook.col):
+					if board.tile_is_safe(board.player_x, i, j):
+						empty_spaces += 1
+		else:
+			for i in range(x_rook.row + 1, 9):
+				for j in range(x_rook.col + 1, 9):
+					if board.tile_is_safe(board.player_x, i, j):
+						empty_spaces += 1
+
 		y_king_coords = (board.player_y.pieces['K'].row,
 						 board.player_y.pieces['K'].col)
 		x_king_coords = (board.player_x.pieces['K'].row,
 		                 board.player_x.pieces['K'].col)
 		x_rook_coords = (board.player_x.pieces['R'].row,
-		                 board.player_x.pieces['R'].col)
-
-		corner_distance = min(min(self.distance(y_king_coords, (1, 1)),
-								  self.distance(y_king_coords, (1, 8))),
-							  min(self.distance(y_king_coords, (8, 1)),
-								  self.distance(y_king_coords, (8, 8))))
+                        board.player_x.pieces['R'].col)
 
 		kings_distance = self.distance(y_king_coords, x_king_coords)
+		rook_distance = self.distance(x_king_coords, x_rook_coords)
 
-		rook_distance = self.distance(y_king_coords, x_rook_coords)
+		corner_distance = min(min(self.distance(y_king_coords, (1, 1)),
+						  self.distance(y_king_coords, (1, 8))),
+					  min(self.distance(y_king_coords, (8, 1)),
+						  self.distance(y_king_coords, (8, 8))))
 
-		return corner_distance + kings_distance # - (rook_distance * 0.75)
+		# if kings_distance > rook_distance:
+		# 	return (empty_spaces / 2) + kings_distance
+		# else:
+		return (empty_spaces / 2) + kings_distance * 3 + corner_distance * 2
+		# return (empty_spaces / 2) + kings_distance * 20 - rook_distance * 5
 	
 	# Return distance between two points
 	def distance(self, p1, p2):
