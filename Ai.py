@@ -25,6 +25,7 @@ class Ai:
 		self.number_of_states = 0
 	
 	def move(self, board, player):
+		self.root_node = None
 		if not board.find_legal_moves(board.player_y.pieces['K']):
 			File.prompt("GAME OVER")
 			exit(0)
@@ -35,33 +36,35 @@ class Ai:
 			else:
 				self.create_state_tree(board, player, 0, self.root_node, True)
 				
-		best_state = self.root_node.children_nodes[0]
-		for s in self.root_node.children_nodes:
-			if player.id == 'x':
-				if (not board.legal_move(board.player_y.pieces['K'],
-				                         board.player_x.pieces['R'].row,
-				                         board.player_x.pieces['R'].col) ) and \
-						s.value < best_state.value:
-					best_state = s
-			else:
-				if s.value > best_state.value:
-					best_state = s
-		piece = player.pieces[best_state.piece_to_move.type]
-		moveH = best_state.new_coords[0]
-		moveV = best_state.new_coords[1]
-		File.print('\n')
-		File.prompt("Best move " + player.id + piece.type + " to " + str(moveH) + "," + str(moveV))
-		board.make_move(player, piece, best_state.new_coords)
+			best_state = self.root_node.children_nodes[0]
+			for s in self.root_node.children_nodes:
+				if player.id == 'x':
+					if (not board.legal_move(board.player_y.pieces['K'],
+					                         board.player_x.pieces['R'].row,
+					                         board.player_x.pieces['R'].col) ) and \
+							s.value < best_state.value:
+						best_state = s
+				else:
+					if s.value > best_state.value:
+						best_state = s
+			piece = player.pieces[best_state.piece_to_move.type]
+			moveH = best_state.new_coords[0]
+			moveV = best_state.new_coords[1]
+			File.print('\n')
+			File.prompt("Best move " + player.id + piece.type + " to " + str(moveH) + "," + str(moveV))
+			board.make_move(player, piece, best_state.new_coords)
 
 	# This create tree is just for test cases. Main one below is called in move()
 	def create_tree(self, board, player):
 		self.root_node = State(board)
-		self.known_states.add(board.piece_positions)
 		self.create_state_tree(board, player, 0, self.root_node, True)
 
 	# Create state tree up to max play. Pretty much completely indecipherable now
 	def create_state_tree(self, board, player, depth, parent, is_min):
-		if depth != self.max_ply:   # base case
+		if depth == self.max_ply:   # base case -- Leaf node, assign value
+			hero, villain = board.identify_players(player)
+			parent.value = self.assign_value(board, villain, depth)
+		else:
 			for p in player.pieces.values():
 				moves = board.find_legal_moves(p)
 				if not moves:   # empty list - can only happen for player y
@@ -83,11 +86,11 @@ class Ai:
 						self.number_of_states += 1
 
 						if 'R' not in board.player_x.pieces:
-							new_state.prune = True
+							parent.prune = True
 							new_state.value = INFINITY + depth
-
-						# create state tree for opponent's moves from this child state:
-						self.create_state_tree(test_board, villain, depth + 1, new_state, not is_min)
+						else:
+							# create state tree for opponent's moves from this child state:
+							self.create_state_tree(test_board, villain, depth + 1, new_state, not is_min)
 
 						####### MINIMAX HAPPENS HERE ########
 						if new_state.value is not None:
@@ -112,12 +115,6 @@ class Ai:
 
 						# add this new state to its parent
 						parent.children_nodes.append(new_state)
-		else:   # Leaf node, assign value
-			hero, villain = board.identify_players(player)
-			if 'R' not in board.player_x.pieces:
-				parent.value = INFINITY + depth
-			else:
-				parent.value = self.assign_value(board, villain, depth)
 				
 	def ancestor_values(self, state):
 		if state.next_parent is None or state.next_parent.value is None:
@@ -137,7 +134,7 @@ class Ai:
 				opened.append(c)
 				print('PLY LEVEL ' + str(c.ply_level))
 				c.board.display()
-				print(c.value)
+				print('VALUE: ' + str(c.value))
 			
 	# If goal state has been reached, return (+/-)infinity, otherwise return minimax value
 	def assign_value(self, board, player, depth):

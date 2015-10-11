@@ -55,11 +55,13 @@ def interactive():
 		b = Board(player_x, player_y)
 		File.test_file(b, g, player_x, player_y)
 
+		ai = Ai(4)
+
 		# AI random moves test:
 		for i in range(0, end):
-			b.ai_move(player_x)
+			ai.move(b, player_x)
 			b.display()
-			b.ai_move(player_y)
+			ai.move(b, player_y)
 			b.display()
 
 
@@ -111,8 +113,8 @@ def test2():
 	player_y = Player('y')
 
 	king_x = Piece(player_x, 'K', 5, 5)
-	rook_x = Piece(player_x, 'R', 8, 5)
-	king_y = Piece(player_y, 'K', 6, 7)
+	rook_x = Piece(player_x, 'R', 7, 5)
+	king_y = Piece(player_y, 'K', 8, 7)
 
 
 	player_x.add_piece(rook_x)
@@ -122,12 +124,12 @@ def test2():
 	b = Board(player_x, player_y)
 	b.display()
 
-	ai = Ai(1)
-	#for i in range(35):
-	#	ai.move(b, player_x)
-	#	b.display()
-	#	ai.move(b, player_y)
-	#	b.display()
+	ai = Ai(4)
+	for i in range(35):
+		ai.move(b, player_x)
+		b.display()
+		ai.move(b, player_y)
+		b.display()
 	#	row, col = input('Row Col:').split()
 	#	b.player_move(player_y, king_y, row, col)
 	#	b.display()
