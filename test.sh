@@ -7,9 +7,12 @@ for i in $(seq 1 20); do
   [ -z "$tie" ] || t=$((t+1));
   win=$(echo "$end" | grep -io game);
   [ -z "$win" ] || o=$((o+1));
+  halt=$(echo "$end" | grep -io -e game -e stalemate);
+  [ -z "$halt" ] && h=$((h+1));
 done;
-echo "tie: $((t+0))";
 echo "win: $((o+0))";
+echo "tie: $((t+0))";
+echo "halt: $((h+0))";
 echo "games: $i";
-fail=$((t+o+0))
-echo "scale=5;($fail/$i)*100" | bc
+good=$((o+0))
+echo "scale=5;($good/$i)*100" | bc | sed 's/$/% success/'

@@ -8,7 +8,8 @@ from Game import Game
 from Piece import Piece
 from Player import Player
 
-def interactive():
+
+def interactive(ply):
 	g = Game()
 	mode, end = g.game_type()
 	end = int(end)
@@ -17,7 +18,7 @@ def interactive():
 		player_x = Player('x')
 		player_y = Player('y')
 		b = Board(player_x, player_y)
-		ai = Ai(5)	#declared AI here for now -Brendon
+		ai = Ai(ply)
 		remain = [ 'PlayerX King', 'PlayerX Rook', 'PlayerY King' ]
 		g.ask_piece(b, player_x, player_y, remain)
 		b.display()
@@ -55,18 +56,22 @@ def interactive():
 		b = Board(player_x, player_y)
 		File.test_file(b, g, player_x, player_y)
 
-		ai = Ai(4)
+		ai = Ai(ply)
 
 		# AI random moves test:
 		for i in range(0, end):
 			ai.move(b, player_x)
 			b.display()
+			File.debug(ai.value(b))
+			File.debug(ai.number_of_states)
 			ai.move(b, player_y)
 			b.display()
+			File.debug(ai.value(b))
+			File.debug(ai.number_of_states)
 
 
 # Note: function deprecated
-def test_case():
+def test_case(ply):
 	## old test case:
 	test1()
 	## new test case:
@@ -108,7 +113,7 @@ def test1():
 		b.ai_move(player_y)
 		b.display()
 
-def test2():
+def test2(ply):
 	player_x = Player('x')
 	player_y = Player('y')
 
@@ -124,7 +129,7 @@ def test2():
 	b = Board(player_x, player_y)
 	b.display()
 
-	ai = Ai(4)
+	ai = Ai(ply)
 	for i in range(35):
 		ai.move(b, player_x)
 		b.display()
@@ -148,10 +153,19 @@ def test2():
 	print(ai.number_of_states)
 
 if __name__ == '__main__':
+	ply = 5
+
+	# override default ply
+	if len(sys.argv) >= 2:
+		if re.match(r"[1-9]", sys.argv[1]):
+			try:
+				ply = int(sys.argv[1])
+			except ValueError: pass
+
 	try:
-		#test2()
-		#test_case()
-		interactive()
+		#test2(ply)
+		#test_case(ply)
+		interactive(ply)
 	except KeyboardInterrupt:
 		print("\nExiting...")
 		File.close()
