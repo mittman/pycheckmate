@@ -75,7 +75,7 @@ class Ai:
 
 				for move in moves:
 					if not parent.prune and not \
-						self.dumb_move(board.player_y.pieces['K'], p, move) and not \
+						self.dumb_move(board.player_y.pieces['K'], board.player_x.pieces['K'], p, move) and not \
 						(player.id == 'x' and self.redundant_move(p, move)):
 						# create a new board as a potential new state
 						test_board = copy.deepcopy(board)
@@ -89,6 +89,7 @@ class Ai:
 						if 'R' not in test_board.player_x.pieces:
 							parent.value = INFINITY + depth
 							new_state.value = INFINITY + depth
+							parent.prune = True
 						else:
 							# create state tree for opponent's moves from this child state:
 							self.create_state_tree(test_board, villain, depth + 1, new_state, not is_min)
@@ -118,10 +119,11 @@ class Ai:
 						parent.children_nodes.append(new_state)
 
 	# Function that returns True for any useless moves the x_player's AI may think about making
-	def dumb_move(self, y_king, moved_piece, new_coords):
+	def dumb_move(self, y_king, x_king, moved_piece, new_coords):
 		if moved_piece.type == 'R':
 			# if rook is too close to Y's king, then dumb move:
 			if (self.distance(new_coords, (y_king.row, y_king.col)) < 2.24 and not
+				self.distance(new_coords, (x_king.row, x_king.col)) < 1.7 and not
 				(y_king.row == 8 or y_king.col == 8 or y_king.row == 1 or y_king.col == 1)):
 					return True
 			# if rook is on an edge of the board and moves alongside it, dumb move:
@@ -254,12 +256,12 @@ class Ai:
                         board.player_x.pieces['R'].col)
 
 		kings_distance = self.distance(y_king_coords, x_king_coords)
-		rook_distance = self.distance(x_king_coords, x_rook_coords)
+		rook_distance = self.distance(y_king_coords, x_rook_coords)
 
 		corner_distance = min(min(self.distance(y_king_coords, (1, 1)),
-						  self.distance(y_king_coords, (1, 8))),
-					  min(self.distance(y_king_coords, (8, 1)),
-						  self.distance(y_king_coords, (8, 8))))
+								  self.distance(y_king_coords, (1, 8))),
+		                      min(self.distance(y_king_coords, (8, 1)),
+		                          self.distance(y_king_coords, (8, 8))))
 
 		# if kings_distance > rook_distance:
 		# 	return (empty_spaces / 2) + kings_distance

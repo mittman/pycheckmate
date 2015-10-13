@@ -17,7 +17,7 @@ def interactive():
 		player_x = Player('x')
 		player_y = Player('y')
 		b = Board(player_x, player_y)
-		ai = Ai(5)	#declared AI here for now -Brendon
+		ai = Ai(4)	#declared AI here for now -Brendon
 		remain = [ 'PlayerX King', 'PlayerX Rook', 'PlayerY King' ]
 		g.ask_piece(b, player_x, player_y, remain)
 		b.display()
@@ -55,7 +55,7 @@ def interactive():
 		b = Board(player_x, player_y)
 		File.test_file(b, g, player_x, player_y)
 
-		ai = Ai(4)
+		ai = Ai(6)
 
 		# AI random moves test:
 		for i in range(0, end):
@@ -68,7 +68,7 @@ def interactive():
 # Note: function deprecated
 def test_case():
 	## old test case:
-	test1()
+	# test1()
 	## new test case:
 	test2()
 
@@ -112,9 +112,9 @@ def test2():
 	player_x = Player('x')
 	player_y = Player('y')
 
-	king_x = Piece(player_x, 'K', 5, 5)
-	rook_x = Piece(player_x, 'R', 7, 5)
-	king_y = Piece(player_y, 'K', 8, 7)
+	king_x = Piece(player_x, 'K', 3, 5)
+	rook_x = Piece(player_x, 'R', 5, 7)
+	king_y = Piece(player_y, 'K', 4, 3)
 
 
 	player_x.add_piece(rook_x)
@@ -139,19 +139,19 @@ def test2():
 	#b.player_move(player_y, 'K', 5, 5)
 
 	#ai.create_tree(b, player_x)
-	ai.move(b, player_x)
-	b.display()
+	# ai.move(b, player_x)
+	# b.display()
 	#ai.create_tree(b, player_y)
 	#ai.display_tree(ai.root_node)
-	print(ai.value(b))
+	# print(ai.value(b))
 	#ai.bfs()
 	print(ai.number_of_states)
 
 if __name__ == '__main__':
 	try:
-		#test2()
+		test2()
 		#test_case()
-		interactive()
+		#interactive()
 	except KeyboardInterrupt:
 		print("\nExiting...")
 		File.close()
