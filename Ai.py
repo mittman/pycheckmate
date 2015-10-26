@@ -127,11 +127,11 @@ class Ai:
 				(y_king.row == 8 or y_king.col == 8 or y_king.row == 1 or y_king.col == 1)):
 					return True
 			# if rook is on an edge of the board and moves alongside it, dumb move:
-			if moved_piece.row == 8 and new_coords[1] == 8:
+			if moved_piece.row == 8 and new_coords[0] == 8:
 				return True
-			elif moved_piece.col == 8 and new_coords[0] == 8:
+			elif moved_piece.col == 8 and new_coords[1] == 8:
 				return True
-			elif moved_piece.row == 1 and new_coords[1] == 1:
+			elif moved_piece.row == 1 and new_coords[0] == 1:
 				return True
 			elif moved_piece.col == 1 and new_coords[1] == 1:
 				return True
